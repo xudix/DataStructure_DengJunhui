@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataStructure_DJ
 {
-    public class Vector<T> where T : IComparable<T>, IEquatable<T>, IComparable
+    public class Vector_<T> where T : IComparable<T>, IEquatable<T>, IComparable
     {
         private const int defaul_Capacity = 10;
 
@@ -185,7 +185,7 @@ namespace DataStructure_DJ
 
         #region Constructors
 
-        public Vector(int capacity = defaul_Capacity, int size = 0, T initial_Val = default)
+        public Vector_(int capacity = defaul_Capacity, int size = 0, T initial_Val = default)
         {
             _elem = new T[_capacity = capacity > size ? capacity:size];
             for (_size = 0; _size < size; _size++)
@@ -193,7 +193,7 @@ namespace DataStructure_DJ
         }
 
 
-        public Vector(int capacity = defaul_Capacity, int size = 0, params T[] initial_Vals)
+        public Vector_(int capacity = defaul_Capacity, int size = 0, params T[] initial_Vals)
         {
             size = initial_Vals.Length;
             _elem = new T[_capacity = capacity > size ? capacity : size];
@@ -201,16 +201,16 @@ namespace DataStructure_DJ
                 _elem[_size] = initial_Vals[_size];
         }
 
-        public Vector(in T[] source, int lo, int hi) =>
+        public Vector_(in T[] source, int lo, int hi) =>
             CopyFrom(source, lo, hi);
 
-        public Vector(in T[] source, int n) =>
+        public Vector_(in T[] source, int n) =>
             CopyFrom(source, 0, n);
 
-        public Vector(in Vector<T> source, int lo, int hi) =>
+        public Vector_(in Vector_<T> source, int lo, int hi) =>
             CopyFrom(source._elem, lo, hi);
 
-        public Vector(in Vector<T> source) =>
+        public Vector_(in Vector_<T> source) =>
             CopyFrom(source._elem, 0, source._size);
 
 
