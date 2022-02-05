@@ -6,10 +6,58 @@ using System.Threading.Tasks;
 
 namespace DataStructure_DJ
 {
-    public class Stack_<T>: Vector_<T> where T : IComparable<T>, IEquatable<T>, IComparable
+    public class Stack_<T> where T : IEquatable<T>
     {
-        public void Push(T newElement) => 
-            Insert(newElement);
+        private const int defaul_Capacity = 10;
+
+        protected int _size, _capacity;
+        protected T[] _elem;
+
+        public Stack_(int capacity = defaul_Capacity, int size = 0, T initial_Val = default)
+        {
+            _elem = new T[_capacity = capacity > size ? capacity : size];
+            for (_size = 0; _size < size; _size++)
+                _elem[_size] = initial_Val;
+        }
+
+
+        public Stack_(int capacity = defaul_Capacity, int size = 0, params T[] initial_Vals)
+        {
+            size = initial_Vals.Length;
+            _elem = new T[_capacity = capacity > size ? capacity : size];
+            for (_size = 0; _size < size; _size++)
+                _elem[_size] = initial_Vals[_size];
+        }
+
+        /// <summary>
+        /// Use before inserting any element to the vector
+        /// </summary>
+        protected void Expand()
+        {
+            if (_size < _capacity) return;
+            if (_capacity < defaul_Capacity) _capacity = defaul_Capacity;
+            T[] oldElem = _elem;
+            _elem = new T[_capacity <<= 1];
+            for (int i = 0; i < _size; i++)
+                _elem[i] = oldElem[i];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected void Shrink()
+        {
+            if (_size << 2 > _capacity || _capacity < defaul_Capacity << 1) return;
+            T[] oldElem = _elem;
+            _elem = new T[_capacity >>= 1];
+            for (int i = 0; i < _size; i++)
+                _elem[i] = oldElem[i];
+        }
+        public void Push(T newElement)
+        {
+            Expand();
+            _elem[_size++] = newElement;
+        }
 
         public T Pop()
         {
@@ -18,8 +66,40 @@ namespace DataStructure_DJ
             return pop;
         }
 
+        /// <summary>
+        /// Find the target in disordered vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns>The index of target in the vector. Returns -1 if the target is not found.</returns>
+        public int Find(in T target) =>
+            Find(target, 0, _size);
+
+        /// <summary>
+        /// Find the target in the range [lo, hi) of disordered vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns>The index of target in the vector. Returns lo-1 if the target is not found.</returns>
+        public int Find(in T target, int lo, int hi)
+        {
+            while (lo < hi-- && !_elem[hi].Equals(target)) ;
+            return hi;
+        }
+
         public T Top =>
-            this[_size - 1];
+            _elem[_size - 1];
+
+        public bool Empty => _size == 0;
+
+        public int Size => _size;
+
+        /// <summary>
+        /// Read only indexer.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public T this[int index] => _elem[index];
     }
 
     public class StackExercices
@@ -27,23 +107,7 @@ namespace DataStructure_DJ
         
         public static void Main()
         {
-            try
-            {
-                Dictionary<string, double> dic = new Dictionary<string, double>
-                {
-                    {"a", 5.5},
-                    {"b", 10},
-                    {"c", -1},
-                    {"d", -.3},
-                };
-                dic["d"] = -.5;
-                Console.WriteLine(Evaluate("3!*(a+c)", out _, dic));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            
+            N_Queens(10);
         }
 
         public static string ConvertToNewBase(Int64 input, int newBase)
@@ -59,6 +123,7 @@ namespace DataStructure_DJ
             return sb.ToString();
         }
 
+        #region Related to formular calculation
         public static bool ParenthesisCheck(string input)
         {
             char[] inputChars = input.ToCharArray();
@@ -89,12 +154,17 @@ namespace DataStructure_DJ
         /// Evaluate the string Formula and return the result.
         /// </summary>
         /// <param name="formula"></param>
-        /// <param name="RPN"></param>
         /// <returns></returns>
         public static double Evaluate(string formula)=>
             Evaluate(formula, new Dictionary<string, double>());
 
-
+        /// <summary>
+        /// Evaluate the string Formula and return the result.
+        /// </summary>
+        /// <param name="formula"></param>
+        /// <param name="variableValues">If the formula contains named variables, use this Dictionary to identify their values.</param>
+        /// <returns>Result of the formula.</returns>
+        /// <exception cref="InvalidDataException"></exception>
         public static double Evaluate(string formula, Dictionary<string, double> variableValues)
         {
             char[] formulaChars = (String.Concat(formula.Where(c => !Char.IsWhiteSpace(c)))).ToArray();
@@ -308,8 +378,79 @@ namespace DataStructure_DJ
 
         public static bool IsNumeric(char c) =>
             (c >= '0' && c <= '9') || c == '.';
-        
+
+        #endregion
+
+        public static void N_Queens(int n)
+        {
+            Stack_<Queen> queenStack = new();
+            queenStack.Push(new Queen(0, 0));
+            Queen newQueen = new Queen(queenStack.Size, 0);
+            StringBuilder sb = new();
+            int solutionCount = 0, searchCount = 0;
+            var display = () =>
+            {
+                sb.Clear();
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < queenStack[i].y; j++)
+                        sb.Append('O');
+                    sb.Append('X');
+                    for (int j = 0; j < n - queenStack[i].y - 1; j++)
+                        sb.Append('O');
+                    sb.AppendLine();
+                }
+                sb.AppendLine();
+                Console.WriteLine(sb.ToString());
+            };
+            while (newQueen.x > 0 || newQueen.y < n) // End after all posibilities for Queen(0,y) are tried out.
+            {
+                while (queenStack.Find(newQueen) >= 0 && newQueen.y < n)
+                {
+                    newQueen.y++; searchCount++;
+                }
+                if (newQueen.y < n)
+                {
+                    queenStack.Push(newQueen);
+                    if (queenStack.Size == n) //found one solution. Move to next.
+                    {
+                        //display();
+                        solutionCount++;
+                        newQueen = queenStack.Pop();
+                        newQueen.y++;
+                    }
+                    else
+                        newQueen = new Queen(queenStack.Size, 0);
+                }
+                else
+                {
+                    newQueen = queenStack.Pop();
+                    newQueen.y++;
+                }
+            }
+            Console.WriteLine(solutionCount);
+            Console.WriteLine(searchCount);
+        }
     }
 
+    public struct Queen : IEquatable<Queen> // Used to solve the N-Queens problem.
+    {
+        public int x, y; // Position of Queen
 
+        public Queen(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        /// <summary>
+        /// Determines if two Queens are attacking each other.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(Queen other)
+        {
+            return (x == other.x) || (y == other.y) || (x + y == other.x + other.y) || (x - y == other.x - other.y);
+        }
+    }
 }
