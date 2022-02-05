@@ -219,11 +219,13 @@ namespace DataStructure_DJ
 
         #region Read only interfaces
 
-        public int Size { get => _size; }
+        public int Size => _size;
 
-        public bool Empty { get => _size == 0; }
+        public T[] Elements => _elem;
 
-        public int Disordered_Num { get => Disordered(0, _size); }
+        public bool Empty => _size == 0;
+
+        public int Disordered_Num => Disordered(0, _size);
 
         /// <summary>
         /// Find the target in disordered vector
@@ -296,8 +298,8 @@ namespace DataStructure_DJ
         /// <returns></returns>
         public T this[int index]
         {
-            get { return _elem[index]; }
-            set { _elem[index] = value; }
+            get => _elem[index];
+            set => _elem[index] = value; 
         }
             
 
@@ -357,8 +359,12 @@ namespace DataStructure_DJ
         /// </summary>
         /// <param name="newElement"></param>
         /// <returns></returns>
-        public int Insert(in T newElement) =>
-            Insert(_size,newElement);
+        public int Insert(in T newElement)
+        {
+            Expand();
+            _elem[_size++] = newElement;
+            return _size-1;
+        }
 
 
         public void Sort(int lo, int hi)
