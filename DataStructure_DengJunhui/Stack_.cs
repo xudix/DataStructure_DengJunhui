@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataStructure_DJ
 {
-    public class Stack_<T> where T : IEquatable<T>
+    public class Stack_<T> 
     {
         private const int defaul_Capacity = 10;
 
@@ -66,6 +66,25 @@ namespace DataStructure_DJ
             return pop;
         }
 
+        
+
+        public T Top =>
+            _elem[_size - 1];
+
+        public bool Empty => _size == 0;
+
+        public int Size => _size;
+
+        /// <summary>
+        /// Read only indexer.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public T this[int index] => _elem[index];
+    }
+
+    public class Stack_withFind<T>: Stack_<T> where T : IEquatable<T>
+    {
         /// <summary>
         /// Find the target in disordered vector
         /// </summary>
@@ -86,20 +105,6 @@ namespace DataStructure_DJ
             while (lo < hi-- && !_elem[hi].Equals(target)) ;
             return hi;
         }
-
-        public T Top =>
-            _elem[_size - 1];
-
-        public bool Empty => _size == 0;
-
-        public int Size => _size;
-
-        /// <summary>
-        /// Read only indexer.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public T this[int index] => _elem[index];
     }
 
     public class StackExercices
@@ -383,7 +388,7 @@ namespace DataStructure_DJ
 
         public static void N_Queens(int n)
         {
-            Stack_<Queen> queenStack = new();
+            Stack_withFind<Queen> queenStack = new();
             queenStack.Push(new Queen(0, 0));
             Queen newQueen = new Queen(queenStack.Size, 0);
             StringBuilder sb = new();

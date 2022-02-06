@@ -22,7 +22,7 @@ namespace DataStructure_DJ
 
         public bool IsEmpty => _root == null;
 
-        public BinNode<T> Root => _root;
+        public BinNode<T>? Root => _root;
 
         /// <summary>
         /// Insert data as the root. 
@@ -105,11 +105,11 @@ namespace DataStructure_DJ
                 UpdateHeightAbove(binNode.Parent);
             }
             int n_removed = N_Nodes(binNode);
-
-            return binNode.Height;
+            _size -= n_removed;
+            return n_removed;
         }
 
-        public int N_Nodes(BinNode<T> binNode)=>
+        public static int N_Nodes(BinNode<T> binNode)=>
             binNode == null ? 0 : 1 + N_Nodes(binNode) + N_Nodes(binNode);
          
 
@@ -130,29 +130,36 @@ namespace DataStructure_DJ
         /// <returns>The sub tree removed.</returns>
         public BinTree<T> Secede(BinNode<T> binNode)
         {
-            if (binNode.IsLChild)
-                binNode.Parent.L_Child = null;
-            else if (binNode.IsRChild)
-                binNode.Parent.R_Child = null;
-            else if (binNode == _root)
+            BinTree<T> newTree = new();
+            if (binNode.Parent == null) // This is the root
+            {
                 _root = null;
-
+            }
+            else
+            {
+                if (binNode.IsLChild)
+                    binNode.Parent.L_Child = null;
+                else
+                    binNode.Parent.R_Child = null;
+                UpdateHeightAbove(binNode.Parent);
+            }
+            newTree._size = N_Nodes(binNode);
+            _size -= newTree.Size;
             binNode.Parent = null;
-            BinTree<T> newTree = new ();
             newTree._root = binNode;
             return newTree;
         }
 
-        public void TravLevel(Action<T> action) =>
+        public void TravLevel(TraversalAction<T> action) =>
             _root?.TravLevel(action);
 
-        public void TravPre(Action<T> action) =>
+        public void TravPre(TraversalAction<T> action) =>
             _root?.TravPre(action);
 
-        public void TravIn(Action<T> action) =>
+        public void TravIn(TraversalAction<T> action) =>
             _root?.TravIn(action);
 
-        public void TravPost(Action<T> action) =>
+        public void TravPost(TraversalAction<T> action) =>
             _root?.TravPost(action);
 
     }
@@ -194,7 +201,7 @@ namespace DataStructure_DJ
         /// <param name="data"></param>
         /// <returns>The new node inserted.</returns>
         public BinNode<T> InsertAsLC(T data) =>
-            (L_Child = new(data,this));
+            (L_Child = new(data, this));
 
         /// <summary>
         /// Insert data as the right child of current node. Previous right child will be discard.
@@ -202,45 +209,126 @@ namespace DataStructure_DJ
         /// <param name="data"></param>
         /// <returns>The new node inserted.</returns>
         public BinNode<T> InsertAsRC(T data) =>
-            (R_Child = new(data,this));
+            (R_Child = new(data, this));
 
         /// <summary>
-        /// 
+        /// The succeding node of the current node in Inorder Traversal
         /// </summary>
-        public BinNode<T> Succ => L_Child;
+        /// <returns>The succeding node. If this node is the last node, return null.</returns>
+        public BinNode<T>? Succ() {
+            BinNode<T> result = this;
+            if (result.HasRChild) // If it has right child, the succ is in the right child subtree.
+            {
+                result = result.R_Child;
+                while(result.HasLChild)
+                    result = result.L_Child;
+            }
+            else // Otherwise, the succ is in the first ancestor that has this node in left child subtree.
+            {
+                while (result.IsRChild)
+                    result = result.Parent;
+                result = result.Parent;
+            }
+            return result;
+        }
 
         /// <summary>
-        /// 
+        /// Level-order Traversal
         /// </summary>
         /// <param name="action"></param>
-        public void TravLevel(Action<T> action)
+        public void TravLevel(TraversalAction<T> action)
         {
+            BinNode<T> current = this;
+            Queue_<BinNode<T>> nodeQueue = new(current.Size>>1);
+            nodeQueue.Enqueue(current);
+            while(!nodeQueue.Empty)
+            {
+                current = nodeQueue.Dequeue();
+                action(ref current.Data);
+                if (current.L_Child != null)
+                    nodeQueue.Enqueue(current.L_Child);
+                if (current.R_Child != null)
+                    nodeQueue.Enqueue(current.R_Child);
+            }
+        }
 
+        /// <summary>
+        /// Preorder traversal.
+        /// </summary>
+        /// <param name="action"></param>
+        public void TravPre(TraversalAction<T> action)
+        {
+            BinNode<T>? current = this;
+            Stack_<BinNode<T>> nodeStack = new();
+            do
+            {
+                action(ref current.Data);
+                if (current.HasRChild)
+                    nodeStack.Push(current.R_Child);
+                if ((current = current.L_Child) == null)
+                    current = !nodeStack.Empty ? nodeStack.Pop() : null;
+            } while (current != null);
+            
+        }
+
+        /// <summary>
+        /// Inorder Traversal.
+        /// </summary>
+        /// <param name="action"></param>
+        public void TravIn(TraversalAction<T> action)
+        {
+            BinNode<T> current = this;
+            while (current.HasLChild)
+                current = current.L_Child;
+            while(current != null)
+            {
+                action(ref current.Data);
+                current = current.Succ();
+            }
+        }
+
+        /// <summary>
+        /// Inorder Traversal using stack method.
+        /// </summary>
+        /// <param name="action"></param>
+        public void TravIn_STK(TraversalAction<T> action)
+        {
+            BinNode<T>? current = this;
+            Stack_<BinNode<T>> nodeStack = new();
+            //nodeStack.Push(current);
+            //while (!nodeStack.Empty )
+            //{
+            //    if(current != null && current.HasLChild)
+            //        nodeStack.Push(current = current.L_Child);
+            //    else
+            //    {
+            //        current = nodeStack.Pop();
+            //        action(ref current.Data);
+            //        if((current = current.R_Child)!=null)
+            //            nodeStack.Push(current);
+            //    }
+            //}
+            do
+            {
+                if (current != null)
+                {
+                    nodeStack.Push(current);
+                    current = current.L_Child;
+                }
+                else
+                {
+                    current = nodeStack.Pop();
+                    action(ref current.Data);
+                    current = current.R_Child;
+                }
+            } while (!nodeStack.Empty || current != null);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="action"></param>
-        public void TravPre(Action<T> action)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="action"></param>
-        public void TravIn(Action<T> action)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="action"></param>
-        public void TravPost(Action<T> action)
+        public void TravPost(TraversalAction<T> action)
         {
             
         }
@@ -269,4 +357,6 @@ namespace DataStructure_DJ
     }
 
     public enum RBColor { RB_RED, RB_BLACK};
+
+    public delegate void TraversalAction<T>(ref T? value);
 }
