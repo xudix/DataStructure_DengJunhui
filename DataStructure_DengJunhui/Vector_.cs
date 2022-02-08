@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace DataStructure_DJ
 {
-    public class Vector_<T> where T : IComparable<T>, IEquatable<T>, IComparable
+    public class Vector_<T>
     {
         private const int defaul_Capacity = 10;
 
         protected int _size, _capacity;
-        protected T[] _elem;
+        protected T?[] _elem;
 
-        public delegate void DelegateMethod(ref T obj);
+        public delegate void DelegateMethod(ref T? obj);
 
         #region protected methods
 
@@ -56,131 +56,9 @@ namespace DataStructure_DJ
                 _elem[i] = oldElem[i];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        /// <returns>True if the array is already sorted</returns>
-        protected bool Bubble(int lo, int hi)
-        {
-            bool sorted = true;
-            while (++lo < hi)
-                if (_elem[lo - 1].CompareTo(_elem[lo]) > 0)
-                {
-                    sorted = false;
-                    Swap(ref _elem[lo - 1], ref _elem[lo]);
-                }
-            return sorted;
-        }
+        
 
-        private static void Swap(ref T t1, ref T t2)
-        {
-            T temp = t1;
-            t1 = t2;
-            t2 = temp;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        protected void BubbleSort(int lo, int hi)
-        {
-            while (!Bubble(lo, hi--)) ;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        /// <returns></returns>
-
-        protected int Max(int lo, int hi)
-        {
-            int max = lo;
-            T max_elem = _elem[lo];
-            for (int i = lo; i < hi; i++)
-                if (_elem[i].CompareTo(max_elem) > 0)
-                    max_elem = _elem[max = i];
-            return max;
-
-        }
-
-        protected int Disordered(int lo, int hi)
-        {
-            int disordered = 0;
-            for (int i = lo+1; i < hi; i++)
-                if (_elem[i - 1].CompareTo(_elem[i]) > 0)
-                    disordered++;
-            return disordered;
-        }
-
-        /// <summary>
-        /// Merge two subsets of the array with index range [lo, mi) and [mi,hi), respectively.
-        /// The two sub arrays shouldl be sorted, respectively
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="mi"></param>
-        /// <param name="hi"></param>
-        protected void Merge(int lo,int mi, int hi)
-        {
-            int i, array1_len = mi - lo;
-            T[] array1 = new T[array1_len];
-            for(i=0; i < array1_len; i++)
-                array1[i] = _elem[i+lo];
-            i = 0;
-            while (lo < hi)
-                _elem[lo++] = mi >= hi || (i < array1_len && array1[i].CompareTo(_elem[mi]) <= 0) ? array1[i++] : _elem[mi++];
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        protected void MergeSort(int lo, int hi)
-        {
-            if (hi - lo == 1) return;
-            int mi = (hi + lo) >> 1;
-            MergeSort(lo, mi);
-            MergeSort(mi, hi);
-            Merge(lo, mi, hi);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        protected int Partition(int lo, int hi)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        protected void QuickSort(int lo, int hi)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        protected void HeapSort(int lo, int hi)
-        {
-
-        }
+        
         #endregion
 
         #region Constructors
@@ -193,13 +71,13 @@ namespace DataStructure_DJ
         }
 
 
-        public Vector_(int capacity = defaul_Capacity, int size = 0, params T[] initial_Vals)
-        {
-            size = initial_Vals.Length;
-            _elem = new T[_capacity = capacity > size ? capacity : size];
-            for (_size = 0; _size < size; _size++)
-                _elem[_size] = initial_Vals[_size];
-        }
+        //public Vector_(int capacity = defaul_Capacity, int size = 0, params T[] initial_Vals)
+        //{
+        //    size = initial_Vals.Length;
+        //    _elem = new T[_capacity = capacity > size ? capacity : size];
+        //    for (_size = 0; _size < size; _size++)
+        //        _elem[_size] = initial_Vals[_size];
+        //}
 
         public Vector_(in T[] source, int lo, int hi) =>
             CopyFrom(source, lo, hi);
@@ -225,57 +103,9 @@ namespace DataStructure_DJ
 
         public bool Empty => _size == 0;
 
-        public int Disordered_Num => Disordered(0, _size);
+        public int Capacity => _capacity;
 
-        /// <summary>
-        /// Find the target in disordered vector
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns>The index of target in the vector. Returns -1 if the target is not found.</returns>
-        public int Find(in T target) =>
-            Find(target, 0, _size);
-
-        /// <summary>
-        /// Find the target in the range [lo, hi) of disordered vector
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        /// <returns>The index of target in the vector. Returns lo-1 if the target is not found.</returns>
-        public int Find(in T target, int lo, int hi)
-        {
-            while (lo < hi-- && !_elem[hi].Equals(target)) ;
-            return hi;
-        }
-
-        /// <summary>
-        /// Search for target in SORTED vector
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public int Search(in T target) =>
-            Search(target, 0, _size);
-
-        /// <summary>
-        /// Search for target in the range [lo, hi) of SORTED vector
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="lo"></param>
-        /// <param name="hi"></param>
-        /// <returns>Returns the index of target, or the largest element that is not greater than the target.</returns>
-        public int Search(in T target, int lo, int hi)
-        {
-            int mi;
-            while (lo < hi)
-            {
-                mi = (lo + hi) >> 1;
-                if (_elem[mi].CompareTo(target) > 0)
-                    hi = mi;
-                else
-                    lo = mi++;
-            }
-            return --lo;
-        }
+        
 
         public override string ToString()
         {
@@ -284,6 +114,13 @@ namespace DataStructure_DJ
                 sb.Append(_elem[i].ToString()).Append(',');
             sb.AppendLine().AppendLine("Capacity: " + _capacity + "; Size: " + _size);
             return sb.ToString();
+        }
+
+        public static void Swap(ref T t1, ref T t2)
+        {
+            T temp = t1;
+            t1 = t2;
+            t2 = temp;
         }
 
 
@@ -359,7 +196,7 @@ namespace DataStructure_DJ
         /// </summary>
         /// <param name="newElement"></param>
         /// <returns></returns>
-        public int Insert(in T newElement)
+        public int Insert(in T? newElement)
         {
             Expand();
             _elem[_size++] = newElement;
@@ -367,16 +204,7 @@ namespace DataStructure_DJ
         }
 
 
-        public void Sort(int lo, int hi)
-        {
-            MergeSort(lo, hi);
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Sort() =>
-            Sort(0, _size);
 
         /// <summary>
         /// Randomize the order of the elements in the range of lo and hi of the vector.
@@ -396,22 +224,7 @@ namespace DataStructure_DJ
         public void Unsort() =>
             Unsort(0, _size);
 
-        /// <summary>
-        /// Remove all duplicated elements in disordered vector.
-        /// </summary>
-        /// <returns></returns>
-        public int Deduplicate()
-        {
-            int i = 1, oldSize = _size;
-            while (i < _size)
-            {
-                if(Find(_elem[i],0,i)<0)
-                    i++;
-                else
-                    Remove(i);
-            }
-            return oldSize - _size;
-        }
+
 
         /// <summary>
         /// 
@@ -443,5 +256,211 @@ namespace DataStructure_DJ
             input -= 50;
 
         #endregion
+    }
+
+    public class Vector_with_Sort_<T>: Vector_<T> where T : IComparable<T>, IEquatable<T>, IComparable
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns>True if the array is already sorted</returns>
+        protected bool Bubble(int lo, int hi)
+        {
+            bool sorted = true;
+            while (++lo < hi)
+                if (_elem[lo - 1].CompareTo(_elem[lo]) > 0)
+                {
+                    sorted = false;
+                    Swap(ref _elem[lo - 1], ref _elem[lo]);
+                }
+            return sorted;
+
+
+        }
+
+        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        protected void BubbleSort(int lo, int hi)
+        {
+            while (!Bubble(lo, hi--)) ;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns></returns>
+
+        protected int Max(int lo, int hi)
+        {
+            int max = lo;
+            T max_elem = _elem[lo];
+            for (int i = lo; i < hi; i++)
+                if (_elem[i].CompareTo(max_elem) > 0)
+                    max_elem = _elem[max = i];
+            return max;
+
+        }
+
+        protected int Disordered(int lo, int hi)
+        {
+            int disordered = 0;
+            for (int i = lo + 1; i < hi; i++)
+                if (_elem[i - 1].CompareTo(_elem[i]) > 0)
+                    disordered++;
+            return disordered;
+        }
+
+        /// <summary>
+        /// Merge two subsets of the array with index range [lo, mi) and [mi,hi), respectively.
+        /// The two sub arrays shouldl be sorted, respectively
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="mi"></param>
+        /// <param name="hi"></param>
+        protected void Merge(int lo, int mi, int hi)
+        {
+            int i, array1_len = mi - lo;
+            T[] array1 = new T[array1_len];
+            for (i = 0; i < array1_len; i++)
+                array1[i] = _elem[i + lo];
+            i = 0;
+            while (lo < hi)
+                _elem[lo++] = mi >= hi || (i < array1_len && array1[i].CompareTo(_elem[mi]) <= 0) ? array1[i++] : _elem[mi++];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        protected void MergeSort(int lo, int hi)
+        {
+            if (hi - lo == 1) return;
+            int mi = (hi + lo) >> 1;
+            MergeSort(lo, mi);
+            MergeSort(mi, hi);
+            Merge(lo, mi, hi);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        protected int Partition(int lo, int hi)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        protected void QuickSort(int lo, int hi)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        protected void HeapSort(int lo, int hi)
+        {
+
+        }
+
+        public int Disordered_Num => Disordered(0, _size);
+
+        /// <summary>
+        /// Find the target in disordered vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns>The index of target in the vector. Returns -1 if the target is not found.</returns>
+        public int Find(in T target) =>
+            Find(target, 0, _size);
+
+        /// <summary>
+        /// Find the target in the range [lo, hi) of disordered vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns>The index of target in the vector. Returns lo-1 if the target is not found.</returns>
+        public int Find(in T target, int lo, int hi)
+        {
+            while (lo < hi-- && !_elem[hi].Equals(target)) ;
+            return hi;
+        }
+
+        /// <summary>
+        /// Search for target in SORTED vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public int Search(in T target) =>
+            Search(target, 0, _size);
+
+        /// <summary>
+        /// Search for target in the range [lo, hi) of SORTED vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="lo"></param>
+        /// <param name="hi"></param>
+        /// <returns>Returns the index of target, or the largest element that is not greater than the target.</returns>
+        public int Search(in T target, int lo, int hi)
+        {
+            int mi;
+            while (lo < hi)
+            {
+                mi = (lo + hi) >> 1;
+                if (_elem[mi].CompareTo(target) > 0)
+                    hi = mi;
+                else
+                    lo = mi++;
+            }
+            return --lo;
+        }
+
+        public void Sort(int lo, int hi)
+        {
+            MergeSort(lo, hi);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Sort() =>
+            Sort(0, _size);
+
+        /// <summary>
+        /// Remove all duplicated elements in disordered vector.
+        /// </summary>
+        /// <returns></returns>
+        public int Deduplicate()
+        {
+            int i = 1, oldSize = _size;
+            while (i < _size)
+            {
+                if (Find(_elem[i], 0, i) < 0)
+                    i++;
+                else
+                    Remove(i);
+            }
+            return oldSize - _size;
+        }
     }
 }
