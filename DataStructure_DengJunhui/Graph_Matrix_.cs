@@ -14,15 +14,14 @@ namespace DataStructure_DJ
     {
 
         protected Vector_<Vertex<Tvertex>> Vertices;
-        protected Vector_<Vector_<Edge<Tedge>>> Edges;
-
+        protected Vector_<Vector_<Edge<Tedge>>> Edges_Matrix;
 
         public Graph_Matrix_()
         {
             n_vertex = 0;
             n_edge = 0;
             Vertices = new();
-            Edges = new();
+            Edges_Matrix = new();
         }
 
 
@@ -56,11 +55,11 @@ namespace DataStructure_DJ
         /// <param name="index2"></param>
         /// <returns></returns>
         public override ref Tedge? Edge(int index1, int index2)=>
-            ref Edges[index1][index2].data;
+            ref Edges_Matrix[index1][index2].data;
 
 
         public override bool Exists(int from_index, int index2) =>
-            from_index >=0 && from_index < n_vertex && index2 >=0 && index2 < n_vertex &&!(Edges[from_index][index2] == null);
+            from_index >=0 && from_index < n_vertex && index2 >=0 && index2 < n_vertex &&!(Edges_Matrix[from_index][index2] == null);
 
         public override int FirstNbr(int index)
         {
@@ -81,9 +80,9 @@ namespace DataStructure_DJ
         public override int Insert(in Tvertex? data)
         {
             for (int i = 0;i<n_vertex;i++)
-                Edges[i].Insert(null);
+                Edges_Matrix[i].Insert(null);
             n_vertex++;
-            Edges.Insert(new Vector_<Edge<Tedge>>(Edges.Capacity, n_vertex));
+            Edges_Matrix.Insert(new Vector_<Edge<Tedge>>(Edges_Matrix.Capacity, n_vertex));
             return Vertices.Insert(new Vertex<Tvertex>(data)); ;
         }
 
@@ -97,13 +96,13 @@ namespace DataStructure_DJ
         /// <exception cref="NotImplementedException"></exception>
         public override void Insert(Tedge? data, int from_index, int to_index, double weight = 1)
         {
-            Edges[from_index][to_index] = new Edge<Tedge>(data, weight);
+            Edges_Matrix[from_index][to_index] = new Edge<Tedge>(data, weight);
             n_edge++;
             Vertices[to_index].inDegree++;
             Vertices[from_index].outDegree++;
         }
 
-        public override int NextNbf(int index1, int index2)
+        public override int NextNbr(int index1, int index2)
         {
             throw new NotImplementedException();
         }
@@ -111,10 +110,8 @@ namespace DataStructure_DJ
         public override int OutDegree(int index) =>
             Vertices[index].outDegree;
 
-        public override ref int Parent(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public override ref int Parent(int index) =>
+            ref Vertices[index].parent;
 
         public override void PFS(int index, Type type)
         {
@@ -126,10 +123,8 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        public override ref int Priority(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public override ref int Priority(int index) =>
+            ref Vertices[index].priority;
 
         public override Tvertex? Remove(int index)
         {
@@ -141,7 +136,7 @@ namespace DataStructure_DJ
                     n_edge--;
                     Vertices[i].inDegree--;
                 }
-            Edges.Remove(index);
+            Edges_Matrix.Remove(index);
             n_vertex--;
             for (int i=0; i<n_vertex; i++) //all edges to "index"
             {
@@ -150,7 +145,7 @@ namespace DataStructure_DJ
                     n_edge--;
                     Vertices[i].outDegree--;
                 }
-                Edges[i].Remove(index);
+                Edges_Matrix[i].Remove(index);
             }
             return Vertices.Remove(index).data;
         }
@@ -160,7 +155,10 @@ namespace DataStructure_DJ
             if (Exists(from_index, to_index))
             {
                 Tedge? data = Edge(from_index,to_index);
-                Edges[from_index][to_index] = default;
+                Edges_Matrix[from_index][to_index] = default;
+                n_edge--;
+                Vertices[to_index].inDegree--;
+                Vertices[from_index].outDegree--;
                 return data;
             }
             else
@@ -171,18 +169,18 @@ namespace DataStructure_DJ
             ref Vertices[index].status;
 
         public override ref Edge_Status Status(int from_index, int to_index)=>
-            ref Edges[from_index][to_index].status;
+            ref Edges_Matrix[from_index][to_index].status;
 
         public override Stack_<Tvertex> TSort(int index)
         {
             throw new NotImplementedException();
         }
 
-        public override ref Tvertex Vertex(int index) =>
+        public override ref Tvertex? Vertex(int index) =>
             ref Vertices[index].data;
 
         public override ref double Weight(int from_index, int to_index) =>
-            ref Edges[from_index][to_index].weight;
+            ref Edges_Matrix[from_index][to_index].weight;
 
         protected override void BCC(int i, ref int n)
         {

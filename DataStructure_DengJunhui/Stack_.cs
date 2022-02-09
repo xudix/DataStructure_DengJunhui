@@ -80,7 +80,15 @@ namespace DataStructure_DJ
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public T this[int index] => _elem[index];
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= _size)
+                    throw new IndexOutOfRangeException();
+                return _elem[index];
+            }
+        }
     }
 
     public class Stack_withFind<T>: Stack_<T> where T : IEquatable<T>

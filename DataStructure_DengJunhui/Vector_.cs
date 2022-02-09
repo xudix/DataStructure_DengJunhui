@@ -135,8 +135,16 @@ namespace DataStructure_DJ
         /// <returns></returns>
         public T this[int index]
         {
-            get => _elem[index];
-            set => _elem[index] = value; 
+            get {
+                if(index < 0 || index >= _size)
+                    throw new IndexOutOfRangeException();
+                return _elem[index]; }
+            set
+            {
+                if (index < 0 || index >= _size)
+                    throw new IndexOutOfRangeException();
+                _elem[index] = value;
+            }
         }
             
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataStructure_DJ
 {
-    public class List_<T> where T : IComparable<T>, IEquatable<T>
+    public class List_<T>
     {
         private int _size;
         private ListNode<T> header, trailer;
@@ -72,36 +72,7 @@ namespace DataStructure_DJ
             return oldSize;
         }
 
-        protected void Merge(ListNode<T> p_start1, int n_nodes1, List_<T> list2, ListNode<T> p_start2, int n_nodes2)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected void MergeSort(ListNode<T> p_start, int n_nodes)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected void InsertionSort(ListNode<T> p_start, int n_nodes)
-        {
-            ListNode<T> current = p_start;
-            int sorted = 1;
-            while(sorted++ < n_nodes)
-            {
-                if(current.Data.CompareTo(current.Succ.Data) > 0)
-                {
-                    T insert = Remove(current.Succ);
-                    InsertAfter(Search(insert, current, sorted), insert);
-                }
-                else
-                    current = current.Succ;
-            }
-        }
-
-        protected void SelectionSort(ListNode<T> p_start, int n_nodes)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         #endregion
 
@@ -112,10 +83,16 @@ namespace DataStructure_DJ
         public ListNode<T> First { get => header.Succ; }
         public ListNode<T> Last { get => trailer.Pred; }
 
+        /// <summary>
+        /// Indexer.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
         public ListNode<T> this[int index]
         {
             get {
-                if (index >= _size) throw new IndexOutOfRangeException();
+                if (index >= _size || index < 0) throw new IndexOutOfRangeException();
                 ListNode<T> ans = this.First;
                 while(index-- > 0)
                     ans= ans.Succ;
@@ -123,26 +100,12 @@ namespace DataStructure_DJ
             }
             set
             {
+                if (index >= _size || index < 0) throw new IndexOutOfRangeException();
                 this[index].Data = value.Data;
             }
         }
 
-        /// <summary>
-        /// Search for target in sorted list.
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="lastNode"></param>
-        /// <param name="n_node"></param>
-        /// <returns>The greatest node that is not greater than the target in a sorted list.</returns>
-        public ListNode<T> Search (T target, ListNode<T> lastNode, int n_node)
-        {
-            while (n_node-- > 0)
-                if (lastNode.Data.CompareTo(target) > 0)
-                    lastNode = lastNode.Pred;
-                else
-                    break;
-            return lastNode;
-        }
+        
 
         public override string ToString()
         {
@@ -195,15 +158,12 @@ namespace DataStructure_DJ
             return removed_data;
         }
 
-        public void Sort()
-        {
-            InsertionSort(First, _size);
-        }
+
 
         #endregion
     }
 
-    public class ListNode<T> where T : IComparable<T>, IEquatable<T>
+    public class ListNode<T> 
     {
         public T? Data { get; set; }
         
@@ -233,6 +193,62 @@ namespace DataStructure_DJ
             this.Succ.Pred = newNode;
             this.Succ = newNode;
             return newNode;
+        }
+    }
+
+    public class List_With_Sort_<T>: List_<T> where T : IComparable<T>, IEquatable<T>
+    {
+        /// <summary>
+        /// Search for target in sorted list.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="lastNode"></param>
+        /// <param name="n_node"></param>
+        /// <returns>The greatest node that is not greater than the target in a sorted list.</returns>
+        public ListNode<T> Search(T target, ListNode<T> lastNode, int n_node)
+        {
+            while (n_node-- > 0)
+                if (lastNode.Data.CompareTo(target) > 0)
+                    lastNode = lastNode.Pred;
+                else
+                    break;
+            return lastNode;
+        }
+
+        protected void Merge(ListNode<T> p_start1, int n_nodes1, List_<T> list2, ListNode<T> p_start2, int n_nodes2)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected void MergeSort(ListNode<T> p_start, int n_nodes)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected void InsertionSort(ListNode<T> p_start, int n_nodes)
+        {
+            ListNode<T> current = p_start;
+            int sorted = 1;
+            while (sorted++ < n_nodes)
+            {
+                if (current.Data.CompareTo(current.Succ.Data) > 0)
+                {
+                    T insert = Remove(current.Succ);
+                    InsertAfter(Search(insert, current, sorted), insert);
+                }
+                else
+                    current = current.Succ;
+            }
+        }
+
+        protected void SelectionSort(ListNode<T> p_start, int n_nodes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Sort()
+        {
+            InsertionSort(First, Size);
         }
     }
 }

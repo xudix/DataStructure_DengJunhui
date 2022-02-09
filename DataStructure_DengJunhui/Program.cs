@@ -7,16 +7,17 @@ using ThisProj = DataStructure_DJ;
 
 //ThisProj.StackExercices.Main();
 
-var queue= new ThisProj.Queue_<double>(5);
-for (int i=0; i<11;i++)
-    queue.Enqueue(i);
+var graph = new ThisProj.Graph_Matrix_<string, int>();
+graph.Insert("A"); 
+graph.Insert("B");
+graph.Insert("C");
+graph.Insert("D");
+graph.Insert("E");
+graph.Insert(1, 0, 2, 3);
+graph.Insert(2, 2, 0,4);
+graph.Insert(3, 1, 0, 7);
+graph.Insert(4, 1, 2, 9);
+graph.Insert(5, 1, 3, 2);
+graph.Insert(6, 3, 1, 5);
 
-for (int i = 0; i < 8; i++)
-    Console.WriteLine(queue.Dequeue());
 
-for (int i = 0; i < 9; i++)
-{
-    queue.Enqueue(i);
-    Console.WriteLine(queue.Dequeue());
-}
-    
