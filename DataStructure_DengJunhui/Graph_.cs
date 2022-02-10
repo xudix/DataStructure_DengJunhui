@@ -41,7 +41,7 @@ namespace DataStructure_DJ
             {
                 int i = vertices.Dequeue();
                 DTime(i) = ++clock;
-                for(int j = this.FirstNbr(i); j >= 0; j = NextNbr(i, j)) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
+                for(int j = FirstNbr(i); j >= 0; j = NextNbr(i, j)) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
                 {
                     if(Status(j) == Vertex_Status.UNDISCOVERED)
                     {
@@ -73,12 +73,13 @@ namespace DataStructure_DJ
                     case Vertex_Status.DISCOVERED:
                         Status(index, j) = Edge_Status.BACKWARD;
                         break;
-                    
-
+                    default:
+                        Status(index, j) = DTime(index) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                        break;
                 }
-                
             }
             Status(index) = Vertex_Status.VISITED;
+            FTime(index) = ++clock;
         }
 
         protected virtual void DFS_Itr(int index, ref int clock)
@@ -88,27 +89,50 @@ namespace DataStructure_DJ
             Status(index) = Vertex_Status.DISCOVERED;
             while (!vertices.Empty)
             {
-                int i = vertices.Pop();
-                DTime(i) = ++clock;
-                for (int j = this.FirstNbr(i); j >= 0; j = NextNbr(i, j)) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
+                //int i = vertices.Top;
+                //int j = FirstNbr(i);
+                //do
+                //{
+                //    if (Status(j) == Vertex_Status.UNDISCOVERED)
+                //    {
+                //        vertices.Push(j);
+                //        Status(j) = Vertex_Status.DISCOVERED;
+                //        DTime(j) = ++clock;
+                //        Status(i, j) = Edge_Status.TREE;
+                //        Parent(j) = i;
+                //        break;
+                //    }
+                //    else if (Status(j) == Vertex_Status.DISCOVERED) //previously discovered but not done with. It is still in the stack but not all child examined.
+                //    { Status(i, j) = Edge_Status.BACKWARD; }
+                //    else
+                //    { Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS; }
+                //} while ((j = NextNbr(i, j)) >=0);
+                //if (j < 0)
+                //{
+                //    Status(i) = Vertex_Status.VISITED;
+                //    vertices.Pop();
+                //    FTime(i) = ++clock;
+                //}
+                int i = vertices.Top;
+                for (int j = FirstNbr(i); j >= 0; j = NextNbr(i, j)) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
                 {
-                    switch (Status(j))
+                    if (Status(j) == Vertex_Status.UNDISCOVERED)
                     {
-                        case Vertex_Status.UNDISCOVERED:
-                            vertices.Push(j);
-                            Status(j) = Vertex_Status.DISCOVERED;
-                            Status(i, j) = Edge_Status.TREE;
-                            Parent(j) = i;
-                            break;
-                        case Vertex_Status.DISCOVERED: //previously discovered but not done with. It is still in the stack but not all child examined.
-                            Status(i, j) = Edge_Status.BACKWARD;
-                            break;
-                        default:
-                            Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
-                            break;
+                        vertices.Push(j);
+                        Status(j) = Vertex_Status.DISCOVERED;
+                        DTime(j) = ++clock;
+                        Status(i, j) = Edge_Status.TREE;
+                        Parent(j) = i;
+                        i = vertices.Top;
+                        j = FirstNbr(i);
                     }
+                    else if (Status(j) == Vertex_Status.DISCOVERED) //previously discovered but not done with. It is still in the stack but not all child examined.
+                        Status(i, j) = Edge_Status.BACKWARD;
+                    else
+                        Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
                 }
                 Status(i) = Vertex_Status.VISITED;
+                vertices.Pop();
                 FTime(i) = ++clock;
             }
         }
@@ -176,7 +200,17 @@ namespace DataStructure_DJ
         /// Depth-First Search
         /// </summary>
         /// <param name="index"></param>
-        public abstract void DFS(int index);
+        public virtual void DFS(int index)
+        {
+            Reset();
+            int clock = 0;
+            int i = index;
+            do
+            {
+                if (Status(i) == Vertex_Status.UNDISCOVERED)
+                    DFS_Itr(i, ref clock);
+            } while ((i = (++i % n_vertex)) != index);
+        }
 
 
         public abstract void BCC(int index);

@@ -30,15 +30,6 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        public override void BFS(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DFS(int index)
-        {
-            throw new NotImplementedException();
-        }
 
         public override void Dijkstra(int index)
         {
@@ -61,10 +52,8 @@ namespace DataStructure_DJ
         public override bool Exists(int from_index, int index2) =>
             from_index >=0 && from_index < n_vertex && index2 >=0 && index2 < n_vertex &&!(Edges_Matrix[from_index][index2] == null);
 
-        public override int FirstNbr(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public override int FirstNbr(int from_index) =>
+            NextNbr(from_index, Edges_Matrix[from_index].Size);
 
         public override ref int FTime(int index)=>
             ref Vertices[index].fTime;
@@ -96,15 +85,20 @@ namespace DataStructure_DJ
         /// <exception cref="NotImplementedException"></exception>
         public override void Insert(Tedge? data, int from_index, int to_index, double weight = 1)
         {
+            if(!Exists(from_index, to_index))
+            {
+                n_edge++;
+                Vertices[to_index].inDegree++;
+                Vertices[from_index].outDegree++;
+            }
             Edges_Matrix[from_index][to_index] = new Edge<Tedge>(data, weight);
-            n_edge++;
-            Vertices[to_index].inDegree++;
-            Vertices[from_index].outDegree++;
         }
 
-        public override int NextNbr(int index1, int index2)
+        public override int NextNbr(int from_index, int to_index)
         {
-            throw new NotImplementedException();
+            int nextNbr = to_index;
+            while (--nextNbr >= 0 && !Exists(from_index, nextNbr)) ;
+            return nextNbr;
         }
 
         public override int OutDegree(int index) =>
@@ -187,15 +181,6 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        protected override void BFS(int i, ref int n)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void DFS(int i, ref int n)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override bool TSort(int i, ref int n, Stack_<Tvertex> vertexStack)
         {

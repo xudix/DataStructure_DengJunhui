@@ -13,15 +13,15 @@ namespace DataStructure_DJ
     /// <typeparam name="Tedge"></typeparam>
     public class Graph_List_<Tvertex, Tedge> : Graph_<Tvertex, Tedge>
     {
-        protected Vector_<Vertex<Tvertex>> Vertices;
-        protected Vector_<List_<Edge_for_List<Tvertex, Tedge>>> Edges_Lists;
+        protected Vector_<Vertex_for_List<Tvertex, Tedge>> Vertices;
+        //protected Vector_<List_<Edge_for_List<Tvertex, Tedge>>> Edges_Lists;
 
         public Graph_List_()
         {
             n_vertex = 0;
             n_edge = 0;
             Vertices = new();
-            Edges_Lists = new();
+            //Edges_Lists = new();
         }
 
 
@@ -30,15 +30,6 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        public override void BFS(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DFS(int index)
-        {
-            throw new NotImplementedException();
-        }
 
         public override void Dijkstra(int index)
         {
@@ -49,34 +40,61 @@ namespace DataStructure_DJ
             ref Vertices[index].dTime;
 
         /// <summary>
-        /// Check if the edge Exists before you call this.
+        /// Find the edge data between two vertices. Check if the edge Exists before you call this.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
-        /// <returns></returns>
+        /// <returns>The data associated with the edge.</returns>
         public override ref Tedge? Edge(int from_index, int to_index)
         {
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[from_index].First;
-            for (int i = 0; i < Edges_Lists[from_index].Size; i++)
-                if (currentEdge.Data.toVertex == Vertices[to_index])
-                    return ref currentEdge.Data.data;
-                else
-                    currentEdge = currentEdge.Succ;
-            throw new InvalidOperationException("The requested edge does not exist!");
+            Edge_for_List<Tvertex, Tedge>? edge = Edge_Ref(from_index, to_index);
+            if (edge != null)
+                return ref edge.data;
+            else
+                throw new InvalidOperationException("The requested edge does not exist!");
         }
+
+        /// <summary>
+        /// Find the edge between two vertices. Check if the edge Exists before you call this.
+        /// </summary>
+        /// <param name="index1"></param>
+        /// <param name="index2"></param>
+        /// <returns>The reference to the edge.</returns>
+        public Edge_for_List<Tvertex, Tedge>? Edge_Ref(int from_index, int to_index)
+        {
+            ListNode<Edge_for_List<Tvertex, Tedge>> edge;
+            for (edge = Vertices[from_index].edgesList.First; edge.Data != null; edge = edge.Succ)
+                if (edge.Data.toVertex == Vertices[to_index])
+                    break;
+            return edge.Data;
+        }
+
+
 
 
 
         public override bool Exists(int from_index, int to_index) {
             if (from_index < 0 || from_index >= n_vertex || to_index < 0 || to_index >= n_vertex)
                 return false;
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[from_index].First;
-            for (int i = 0; i < Edges_Lists[from_index].Size; i++)
-                    if (currentEdge.Data.toVertex == Vertices[to_index])
-                        return true;
-                    else
-                        currentEdge = currentEdge.Succ;
+            ListNode<Edge_for_List<Tvertex, Tedge>> edge;
+            for (edge = Vertices[from_index].edgesList.First; edge.Data != null; edge = edge.Succ)
+                if (edge.Data.toVertex == Vertices[to_index])
+                    return true;
             return false;
+        }
+
+        /// <summary>
+        /// Find the index of the given vertex in the vector of vertices.
+        /// </summary>
+        /// <param name="vertex"></param>
+        /// <returns>The index. -1 if the vertex is not found.</returns>
+        public int FindIndex(Vertex_for_List<Tvertex, Tedge> vertex)
+        {
+            int index;
+            for (index = Vertices.Size - 1; index >= 0; index--)
+                if (Vertices[index] == vertex)
+                    break;
+            return index;
         }
             
 
@@ -98,9 +116,9 @@ namespace DataStructure_DJ
         /// <returns></returns>
         public override int Insert(in Tvertex? data)
         {
-            Edges_Lists.Insert(new List_<Edge_for_List<Tvertex, Tedge>>());
+            //Edges_Lists.Insert(new List_<Edge_for_List<Tvertex, Tedge>>());
             n_vertex++;
-            return Vertices.Insert(new Vertex<Tvertex>(data)); ;
+            return Vertices.Insert(new Vertex_for_List<Tvertex, Tedge>(data)); ;
         }
 
         /// <summary>
@@ -114,7 +132,7 @@ namespace DataStructure_DJ
         public override void Insert(Tedge? data, int from_index, int to_index, double weight = 1)
         {
             Remove(from_index, to_index);
-            Edges_Lists[from_index].InsertAsLast(new Edge_for_List<Tvertex, Tedge>(Vertices[to_index], data, weight));
+            Vertices[from_index].edgesList.InsertAsLast(new Edge_for_List<Tvertex, Tedge>(Vertices[to_index], data, weight));
             n_edge++;
             Vertices[to_index].inDegree++;
             Vertices[from_index].outDegree++;
@@ -128,8 +146,10 @@ namespace DataStructure_DJ
         public override int OutDegree(int index) =>
             Vertices[index].outDegree;
 
-        public override ref int Parent(int index)=>
-            ref Vertices[index].parent;
+        public override ref int Parent(int index) 
+        { 
+            throw new NotImplementedException();
+        }
 
         public override void PFS(int index, Type type)
         {
@@ -148,59 +168,43 @@ namespace DataStructure_DJ
         {
             if (index >= n_vertex)
                 throw new IndexOutOfRangeException();
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[index].First;
-            for (int j = 0; j < Edges_Lists[index].Size; j++)
-            {
-                currentEdge.Data.toVertex.inDegree--;
-                currentEdge = currentEdge.Succ;
-            }
-            n_edge -= Edges_Lists[index].Size;
-            Edges_Lists.Remove(index); // Edges from "index"
+            ListNode<Edge_for_List<Tvertex, Tedge>> edge;
+            for (edge = Vertices[index].edgesList.First; edge.Data != null; edge = edge.Succ)
+                edge.Data.toVertex.inDegree--;
+            n_edge -= Vertices[index].edgesList.Size;
             n_vertex--;
             for (int from_index = 0; from_index < n_vertex; from_index++) //all edges to "index"
             {
-                currentEdge = Edges_Lists[from_index].First;
-                for (int j = 0; j < Edges_Lists[from_index].Size; j++)
-                    if (currentEdge.Data.toVertex == Vertices[index])
+                for (edge = Vertices[from_index].edgesList.First; edge.Data != null; edge = edge.Succ)
+                    if (edge.Data.toVertex == Vertices[index])
                     {
-                        Edges_Lists[from_index].Remove(currentEdge);
+                        Vertices[from_index].edgesList.Remove(edge);
                         n_edge--;
                         Vertices[from_index].outDegree--;
                     }
-                    else
-                        currentEdge = currentEdge.Succ;
             }
             return Vertices.Remove(index).data;
         }
 
         public override Tedge? Remove(int from_index, int to_index)
         {
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[from_index].First;
-            for (int i = 0; i < Edges_Lists[from_index].Size; i++)
-                if (currentEdge.Data.toVertex == Vertices[to_index])
+            ListNode<Edge_for_List<Tvertex, Tedge>> edge;
+            for (edge = Vertices[from_index].edgesList.First; edge.Data != null; edge = edge.Succ)
+                if (edge.Data.toVertex == Vertices[to_index])
                 {
-                    return Edges_Lists[from_index].Remove(currentEdge).data;
+                    Vertices[from_index].outDegree--;
+                    Vertices[to_index].inDegree--;
+                    n_edge--;
+                    return Vertices[from_index].edgesList.Remove(edge).data;
                 }
-                else
-                    currentEdge = currentEdge.Succ;
             return default;
         }
 
         public override ref Vertex_Status Status(int index) =>
             ref Vertices[index].status;
 
-        public override ref Edge_Status Status(int from_index, int to_index)
-        {
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[from_index].First;
-            for (int i = 0; i < Edges_Lists[from_index].Size; i++)
-                if (currentEdge.Data.toVertex == Vertices[to_index])
-                {
-                    return ref currentEdge.Data.status;
-                }
-                else
-                    currentEdge = currentEdge.Succ;
-            throw new InvalidOperationException("The requested edge does not exist!");
-        }
+        public override ref Edge_Status Status(int from_index, int to_index)=>
+            ref Edge_Ref(from_index, to_index).status;
 
         public override Stack_<Tvertex> TSort(int index)
         {
@@ -210,37 +214,134 @@ namespace DataStructure_DJ
         public override ref Tvertex? Vertex(int index) =>
             ref Vertices[index].data;
 
-        public override ref double Weight(int from_index, int to_index)
-        {
-            ListNode<Edge_for_List<Tvertex, Tedge>> currentEdge = Edges_Lists[from_index].First;
-            for (int i = 0; i < Edges_Lists[from_index].Size; i++)
-                if (currentEdge.Data.toVertex == Vertices[to_index])
-                {
-                    return ref currentEdge.Data.weight;
-                }
-                else
-                    currentEdge = currentEdge.Succ;
-            throw new InvalidOperationException("The requested edge does not exist!");
-        }
+        public override ref double Weight(int from_index, int to_index) =>
+            ref Edge_Ref(from_index, to_index).weight;
 
         protected override void BCC(int i, ref int n)
         {
             throw new NotImplementedException();
         }
 
-        protected override void BFS(int i, ref int n)
+        /// <summary>
+        /// Breath-First Search starting from index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="clock"></param>
+        protected override void BFS(int index, ref int clock)
         {
-            throw new NotImplementedException();
+            Queue_<Vertex_for_List<Tvertex, Tedge>> VertexQueue = new();
+            VertexQueue.Enqueue(Vertices[index]);
+            Status(index) = Vertex_Status.DISCOVERED;
+            while (!VertexQueue.Empty)
+            {
+                Vertex_for_List<Tvertex, Tedge> currentVertex = VertexQueue.Dequeue();
+                currentVertex.dTime = ++clock;
+                ListNode<Edge_for_List<Tvertex, Tedge>>? currentEdge = currentVertex.edgesList.First;
+                while (currentEdge.Data != null) // scan through all edges
+                {
+                    if (currentEdge.Data.toVertex.status == Vertex_Status.UNDISCOVERED)
+                    {
+                        VertexQueue.Enqueue(currentEdge.Data.toVertex);
+                        currentEdge.Data.toVertex.status = Vertex_Status.DISCOVERED;
+                        currentEdge.Data.toVertex.parent = currentVertex;
+                        currentEdge.Data.status = Edge_Status.TREE;
+                    }
+                    else
+                        currentEdge.Data.status = Edge_Status.CROSS;
+                    currentEdge = currentEdge.Succ;
+                }
+                currentVertex.status = Vertex_Status.VISITED;
+            }
         }
 
-        protected override void DFS(int i, ref int n)
+        
+
+        /// <summary>
+        /// Depth-First Search implemented with recursion.
+        /// </summary>
+        /// <param name="fromVertex"></param>
+        /// <param name="clock"></param>
+        protected void DFS(Vertex_for_List<Tvertex, Tedge> fromVertex, ref int clock)
         {
-            throw new NotImplementedException();
+            fromVertex.status = Vertex_Status.DISCOVERED;
+            fromVertex.dTime = ++clock;
+            for (ListNode<Edge_for_List<Tvertex, Tedge>>? currentEdge = fromVertex.edgesList.First; currentEdge.Data != null; currentEdge = currentEdge.Succ)
+            {
+                switch (currentEdge.Data.toVertex.status)
+                {
+                    case Vertex_Status.UNDISCOVERED:
+                        currentEdge.Data.toVertex.status = Vertex_Status.DISCOVERED;
+                        currentEdge.Data.status= Edge_Status.TREE;
+                        currentEdge.Data.toVertex.parent = fromVertex;
+                        DFS(currentEdge.Data.toVertex, ref clock);
+                        break;
+                    case Vertex_Status.DISCOVERED:
+                        currentEdge.Data.status = Edge_Status.BACKWARD;
+                        break;
+                    default: // Status is VISITED.
+                        currentEdge.Data.status = fromVertex.dTime < currentEdge.Data.toVertex.dTime ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                        break;
+                }
+            }
+            fromVertex.status = Vertex_Status.VISITED;
+            fromVertex.fTime = ++clock;
+        }
+
+        /// <summary>
+        /// Depth-First Search implemented using iteration.
+        /// </summary>
+        /// <param name="fromVertex"></param>
+        /// <param name="clock"></param>
+        protected void DFS_Itr(Vertex_for_List<Tvertex, Tedge> fromVertex, ref int clock)
+        {
+            Stack_<Vertex_for_List<Tvertex, Tedge>> vertexStack = new();
+            vertexStack.Push(fromVertex);
+            fromVertex.status = Vertex_Status.DISCOVERED;
+            fromVertex.dTime = ++clock;
+            while (!vertexStack.Empty)
+            {
+                Vertex_for_List<Tvertex, Tedge>? vertex = vertexStack.Top;
+                for(ListNode<Edge_for_List<Tvertex, Tedge>>? edge = vertex.edgesList.First; edge.Data != null; edge = edge.Succ)
+                {
+                    switch (edge.Data.toVertex.status)
+                    {
+                        case Vertex_Status.UNDISCOVERED:
+                            edge.Data.toVertex.parent = vertex;
+                            vertex = edge.Data.toVertex;
+                            vertexStack.Push(vertex);
+                            vertex.status = Vertex_Status.DISCOVERED;
+                            vertex.dTime = ++clock;
+                            edge.Data.status = Edge_Status.TREE;
+                            break;
+                        case Vertex_Status.DISCOVERED:
+                            edge.Data.status = Edge_Status.BACKWARD;
+                            break;
+                        default: // Visited
+                            edge.Data.status = vertex.dTime < edge.Data.toVertex.dTime? Edge_Status.FORWARD: Edge_Status.CROSS;
+                            break;
+                    }
+                }
+                vertex.fTime = ++clock;
+                vertexStack.Pop();
+            }
         }
 
         protected override bool TSort(int i, ref int n, Stack_<Tvertex> vertexStack)
         {
             throw new NotImplementedException();
+        }
+
+        protected override void Reset()
+        {
+            for (int i = 0; i < n_vertex; i++)
+            {
+                Vertices[i].status = Vertex_Status.UNDISCOVERED;
+                DTime(i) = (FTime(i) = -1);
+                Vertices[i].parent = null;
+                Priority(i) = int.MaxValue;
+                for (var edge = Vertices[i].edgesList.First; edge.Data != null; edge = edge.Succ )
+                    edge.Data.status = Edge_Status.UNDETERMINED;
+            }
         }
     }
 
@@ -249,14 +350,38 @@ namespace DataStructure_DJ
         public Tedge? data;
         public double weight;
         public Edge_Status status;
-        public Vertex<Tvertex> toVertex;
+        public Vertex_for_List<Tvertex, Tedge> toVertex;
+        
 
-        public Edge_for_List(Vertex<Tvertex> toVertex, Tedge? data = default, double weight = 1)
+        public Edge_for_List(Vertex_for_List<Tvertex, Tedge> toVertex, Tedge? data = default, double weight = 1)
         {
             this.toVertex = toVertex;
             this.data = data;
             this.weight = weight;
             status = Edge_Status.UNDETERMINED;
+        }
+    }
+
+    public class Vertex_for_List<Tvertex, Tedge>
+    {
+        public Tvertex? data;
+        public int inDegree, outDegree;
+        public Vertex_Status status;
+        public int dTime, fTime;
+        public Vertex_for_List<Tvertex, Tedge>? parent;
+        public int priority;
+        public List_<Edge_for_List<Tvertex, Tedge>> edgesList;
+        public Vertex_for_List(in Tvertex? data = default)
+        {
+            this.data = data;
+            inDegree = 0;
+            outDegree = 0;
+            status = Vertex_Status.UNDISCOVERED;
+            dTime = -1;
+            fTime = -1;
+            parent = default;
+            priority = int.MaxValue;
+            edgesList = new();
         }
     }
 }
