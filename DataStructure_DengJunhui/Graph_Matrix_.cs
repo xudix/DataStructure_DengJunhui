@@ -167,7 +167,16 @@ namespace DataStructure_DJ
 
         public override Stack_<Tvertex> TSort(int index)
         {
-            throw new NotImplementedException();
+            Stack_<Tvertex>? sorted = new();
+            int clock = 0, i = index;
+            Reset();
+            do
+            {
+                if(Status(i) == Vertex_Status.UNDISCOVERED)
+                    if (!TSort(i, ref clock, sorted))
+                        throw new InvalidOperationException("The graph cannot be torpologically sorted.");
+            } while ((i = (i + 1) % n_vertex) != index);
+            return sorted;
         }
 
         public override ref Tvertex? Vertex(int index) =>
@@ -181,10 +190,51 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-
-        protected override bool TSort(int i, ref int n, Stack_<Tvertex> vertexStack)
+        /// <summary>
+        /// Perform a torpological sort of the graph starting from vertex i.
+        /// </summary>
+        /// <param name="i">Starting vertex</param>
+        /// <param name="clock"></param>
+        /// <param name="vertexStack">The stack to show the result of the torpological sort</param>
+        /// <returns>True if the sort is completed sucessfully. False if the graph has a loop.</returns>
+        protected override bool TSort(int i, ref int clock, Stack_<Tvertex> vertexStack)
         {
-            throw new NotImplementedException();
+            Status(i) = Vertex_Status.DISCOVERED;
+            DTime(i) = ++clock;
+            Stack_<int> tempStack = new();
+            tempStack.Push(i);
+            while (!tempStack.Empty)
+            {
+                i = tempStack.Pop();
+                int j = FirstNbr(i);
+                while (j >= 0)
+                {
+                    if (Status(i, j) == Edge_Status.UNDETERMINED)
+                        switch (Status(j))
+                        {
+                            case Vertex_Status.UNDISCOVERED:
+                                Status(j) = Vertex_Status.DISCOVERED;
+                                DTime(j) = ++clock;
+                                tempStack.Push(i);
+                                Status(i, j) = Edge_Status.TREE;
+                                i = j;
+                                j = FirstNbr(i);
+                                continue;
+                            case Vertex_Status.DISCOVERED: // Backward edge.
+                                Status(i, j) = Edge_Status.BACKWARD;
+                                return false;
+                            default:
+                                Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                                break;
+                        }
+                    j = NextNbr(i, j);
+                }
+                Status(i) = Vertex_Status.VISITED;
+                vertexStack.Push(Vertex(i));
+                FTime(i) = ++clock;
+//                tempStack.Pop();
+            }
+            return true;
         }
     }
 

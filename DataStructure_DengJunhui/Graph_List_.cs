@@ -208,7 +208,17 @@ namespace DataStructure_DJ
 
         public override Stack_<Tvertex> TSort(int index)
         {
-            throw new NotImplementedException();
+            Reset();
+            int clock = 0, i = index;
+            Stack_<Tvertex> sorted = new();
+            do
+            {
+
+                if (Vertices[i].status == Vertex_Status.UNDISCOVERED)
+                    if (!TSort(i, ref clock, sorted))
+                        throw new InvalidOperationException("This graph cannot be torpologicalli sorted.");
+            }while((i=(i+1)%n_vertex)!=index);
+            return sorted;
         }
 
         public override ref Tvertex? Vertex(int index) =>
@@ -254,7 +264,22 @@ namespace DataStructure_DJ
             }
         }
 
-        
+        /// <summary>
+        /// Depth-First Search
+        /// </summary>
+        /// <param name="index"></param>
+        public override void DFS(int index)
+        {
+            Reset();
+            int clock = 0;
+            int i = index;
+            do
+            {
+                if (Status(i) == Vertex_Status.UNDISCOVERED)
+                    DFS_Itr(Vertices[i], ref clock);
+            } while ((i = (++i % n_vertex)) != index);
+        }
+
 
         /// <summary>
         /// Depth-First Search implemented with recursion.
@@ -287,6 +312,11 @@ namespace DataStructure_DJ
             fromVertex.fTime = ++clock;
         }
 
+        protected override void DFS_Itr(int index, ref int clock)
+        {
+            DFS_Itr(Vertices[index], ref clock);
+        }
+
         /// <summary>
         /// Depth-First Search implemented using iteration.
         /// </summary>
@@ -301,34 +331,82 @@ namespace DataStructure_DJ
             while (!vertexStack.Empty)
             {
                 Vertex_for_List<Tvertex, Tedge>? vertex = vertexStack.Top;
-                for(ListNode<Edge_for_List<Tvertex, Tedge>>? edge = vertex.edgesList.First; edge.Data != null; edge = edge.Succ)
+                ListNode<Edge_for_List<Tvertex, Tedge>> edge = vertex.edgesList.First;
+                while (edge.Data != null)
                 {
-                    switch (edge.Data.toVertex.status)
-                    {
-                        case Vertex_Status.UNDISCOVERED:
-                            edge.Data.toVertex.parent = vertex;
-                            vertex = edge.Data.toVertex;
-                            vertexStack.Push(vertex);
-                            vertex.status = Vertex_Status.DISCOVERED;
-                            vertex.dTime = ++clock;
-                            edge.Data.status = Edge_Status.TREE;
-                            break;
-                        case Vertex_Status.DISCOVERED:
-                            edge.Data.status = Edge_Status.BACKWARD;
-                            break;
-                        default: // Visited
-                            edge.Data.status = vertex.dTime < edge.Data.toVertex.dTime? Edge_Status.FORWARD: Edge_Status.CROSS;
-                            break;
-                    }
+                    if(edge.Data.status == Edge_Status.UNDETERMINED)
+                        switch (edge.Data.toVertex.status)
+                        {
+                            case Vertex_Status.UNDISCOVERED:
+                                edge.Data.toVertex.parent = vertex;
+                                vertex = edge.Data.toVertex;
+                                vertexStack.Push(vertex);
+                                vertex.status = Vertex_Status.DISCOVERED;
+                                vertex.dTime = ++clock;
+                                edge.Data.status = Edge_Status.TREE;
+                                edge = vertex.edgesList.First;
+                                continue;
+                            case Vertex_Status.DISCOVERED:
+                                edge.Data.status = Edge_Status.BACKWARD;
+                                break;
+                            default: // Visited
+                                edge.Data.status = vertex.dTime < edge.Data.toVertex.dTime? Edge_Status.FORWARD: Edge_Status.CROSS;
+                                break;
+                        }
+                    edge = edge.Succ;
                 }
                 vertex.fTime = ++clock;
+                vertex.status = Vertex_Status.VISITED;
                 vertexStack.Pop();
             }
         }
 
-        protected override bool TSort(int i, ref int n, Stack_<Tvertex> vertexStack)
+        /// <summary>
+        /// Topological sort from "fromIndex".
+        /// </summary>
+        /// <param name="fromIndex"></param>
+        /// <param name="clock"></param>
+        /// <param name="vertexStack"></param>
+        /// <returns>True if sorted correctly. False if a loop is found in the graph.</returns>
+        protected override bool TSort(int fromIndex, ref int clock, Stack_<Tvertex> vertexStack)
         {
-            throw new NotImplementedException();
+            Vertex_for_List<Tvertex, Tedge> current = Vertices[fromIndex];
+            current.status = Vertex_Status.DISCOVERED;
+            current.dTime = ++clock;
+            Stack_<Vertex_for_List<Tvertex, Tedge>> tempStack = new();
+            tempStack.Push(current);
+            while (!tempStack.Empty)
+            {
+                current = tempStack.Top;
+                var edge = current.edgesList.First;
+                while(edge.Data != null)
+                {
+                    if(edge.Data.status == Edge_Status.UNDETERMINED)
+                        switch (edge.Data.toVertex.status)
+                        {
+                            case Vertex_Status.UNDISCOVERED:
+                                current = edge.Data.toVertex;
+                                tempStack.Push(current);
+                                current.status = Vertex_Status.DISCOVERED;
+                                current.dTime = ++clock;
+                                edge.Data.status = Edge_Status.TREE;
+                                edge = current.edgesList.First;
+                                continue;
+                            case Vertex_Status.DISCOVERED: // backward edge found
+                                edge.Data.status |= Edge_Status.BACKWARD;
+                                return false;
+                            default:
+                                edge.Data.status = current.dTime < edge.Data.toVertex.dTime ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                                break;
+                        }
+                    edge = edge.Succ;
+                }
+                current.status = Vertex_Status.VISITED;
+                current.fTime = ++clock;
+                vertexStack.Push(current.data);
+                tempStack.Pop();
+            }
+            return true;
         }
 
         protected override void Reset()

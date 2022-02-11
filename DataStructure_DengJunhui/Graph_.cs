@@ -114,22 +114,26 @@ namespace DataStructure_DJ
                 //    FTime(i) = ++clock;
                 //}
                 int i = vertices.Top;
-                for (int j = FirstNbr(i); j >= 0; j = NextNbr(i, j)) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
+                int j = FirstNbr(i);
+                while (j >= 0) // FirstNbr and NextNbr should guarentee that edge (i,j) exists.
                 {
-                    if (Status(j) == Vertex_Status.UNDISCOVERED)
-                    {
-                        vertices.Push(j);
-                        Status(j) = Vertex_Status.DISCOVERED;
-                        DTime(j) = ++clock;
-                        Status(i, j) = Edge_Status.TREE;
-                        Parent(j) = i;
-                        i = vertices.Top;
-                        j = FirstNbr(i);
-                    }
-                    else if (Status(j) == Vertex_Status.DISCOVERED) //previously discovered but not done with. It is still in the stack but not all child examined.
-                        Status(i, j) = Edge_Status.BACKWARD;
-                    else
-                        Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                    if (Status(i, j) == Edge_Status.UNDETERMINED) // this edge has not been checked
+                        if (Status(j) == Vertex_Status.UNDISCOVERED)
+                        {
+                            vertices.Push(j);
+                            Status(j) = Vertex_Status.DISCOVERED;
+                            DTime(j) = ++clock;
+                            Status(i, j) = Edge_Status.TREE;
+                            Parent(j) = i;
+                            i = vertices.Top;
+                            j = FirstNbr(i);
+                            continue;
+                        }
+                        else if (Status(j) == Vertex_Status.DISCOVERED) //previously discovered but not done with. It is still in the stack but not all child examined.
+                            Status(i, j) = Edge_Status.BACKWARD;
+                        else
+                            Status(i, j) = DTime(i) < DTime(j) ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                    j = NextNbr(i, j);
                 }
                 Status(i) = Vertex_Status.VISITED;
                 vertices.Pop();
@@ -224,5 +228,71 @@ namespace DataStructure_DJ
         public abstract void PFS(int index, Type type);
 
 
+    }
+
+    public class Graph_Exercises
+    {
+        public static void Main()
+        {
+            var graph = new Graph_List_<string, int>();
+            //var graph = new ThisProj.Graph_List_<string, int>();
+            //// Graph in fig 6.7
+            //graph.Insert("A0");
+            //graph.Insert("B1");
+            //graph.Insert("C2");
+            //graph.Insert("D3");
+            //graph.Insert("E4");
+            //graph.Insert("F5");
+            //graph.Insert("G6");
+            //graph.Insert("S7");
+            //graph.Insert(1, 0, 2, 3);
+            //graph.Insert(2, 0, 4, 4);
+            //graph.Insert(3, 2, 1, 7);
+            //graph.Insert(4, 3, 1, 9);
+            //graph.Insert(5, 4, 5, 2);
+            //graph.Insert(6, 4, 6, 5);
+            //graph.Insert(0, 6, 1, 1);
+            //graph.Insert(0, 6, 5, 1);
+            //graph.Insert(0, 7, 0, 1);
+            //graph.Insert(0, 7, 2, 1);
+            //graph.Insert(0, 7, 3, 1);
+            //graph.BFS(0);
+
+            // Graph in fig 6.8
+            //graph.Insert("A0");
+            //graph.Insert("B1");
+            //graph.Insert("C2");
+            //graph.Insert("D3");
+            //graph.Insert("E4");
+            //graph.Insert("F5");
+            //graph.Insert("G6");
+            //graph.Insert(1, 0, 1, 3);
+            //graph.Insert(2, 0, 2, 4);
+            //graph.Insert(3, 1, 2, 7);
+            //graph.Insert(4, 3, 0, 9);
+            //graph.Insert(5, 3, 4, 2);
+            //graph.Insert(6, 0, 5, 5);
+            //graph.Insert(0, 4, 5, 1);
+            //graph.Insert(0, 5, 6, 1);
+            //graph.Insert(0, 6, 0, 1);
+            //graph.Insert(0, 6, 2, 1);
+            //graph.DFS(0);
+
+            // Graph in fig 6.12
+            graph.Insert("A0");
+            graph.Insert("B1");
+            graph.Insert("C2");
+            graph.Insert("D3");
+            graph.Insert("E4");
+            graph.Insert("F5");
+            graph.Insert(1, 0, 2);
+            graph.Insert(1, 0, 3);
+            graph.Insert(1, 1, 2);
+            graph.Insert(1, 2, 3);
+            graph.Insert(1, 2, 4);
+            graph.Insert(1, 2, 5);
+            graph.Insert(1, 4, 5);
+            Stack_<string> sorted = graph.TSort(2);
+        }
     }
 }
