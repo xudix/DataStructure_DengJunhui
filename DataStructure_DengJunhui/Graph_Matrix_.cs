@@ -25,7 +25,7 @@ namespace DataStructure_DJ
         }
 
 
-        public override void BCC(int index)
+        public override object BCC(int index)
         {
             throw new NotImplementedException();
         }
@@ -185,7 +185,7 @@ namespace DataStructure_DJ
         public override ref double Weight(int from_index, int to_index) =>
             ref Edges_Matrix[from_index][to_index].weight;
 
-        protected override void BCC(int i, ref int n)
+        protected override object BCC(int i, ref int n)
         {
             throw new NotImplementedException();
         }

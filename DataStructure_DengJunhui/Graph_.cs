@@ -141,7 +141,7 @@ namespace DataStructure_DJ
             }
         }
 
-        protected abstract void BCC(int i, ref int n);
+        protected abstract object BCC(int i, ref int n);
         protected abstract bool TSort(int i, ref int n, Stack_<Tvertex> vertexStack);
         
 
@@ -217,7 +217,7 @@ namespace DataStructure_DJ
         }
 
 
-        public abstract void BCC(int index);
+        public abstract object BCC(int index);
 
         public abstract Stack_<Tvertex> TSort(int index);
 

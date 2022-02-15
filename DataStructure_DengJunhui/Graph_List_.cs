@@ -25,7 +25,7 @@ namespace DataStructure_DJ
         }
 
 
-        public override void BCC(int index)
+        public override object BCC(int index)
         {
             throw new NotImplementedException();
         }
@@ -227,10 +227,75 @@ namespace DataStructure_DJ
         public override ref double Weight(int from_index, int to_index) =>
             ref Edge_Ref(from_index, to_index).weight;
 
-        protected override void BCC(int i, ref int n)
+        /// <summary>
+        /// Bi-connected component decomposition.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="clock"></param>
+        
+        protected override Vector_<Stack_<Vertex_for_List<Tvertex, Tedge>>> BCC(int index, ref int clock)
         {
-            throw new NotImplementedException();
+            // The idea is to find any loop in the graph by backward edges.
+            // Class Vertex field "fTime" will be used to record the "highest connected ancestor"
+
+            Vertex_for_List<Tvertex, Tedge>? vertex = Vertices[index];
+            vertex.fTime = (vertex.dTime = ++clock);
+            vertex.status = Vertex_Status.DISCOVERED;
+            Vector_<Stack_<Vertex_for_List<Tvertex,Tedge>>> bcc_vec = new();
+            bcc_vec.Insert(new Stack_<Vertex_for_List<Tvertex, Tedge>>());
+            int currentBCC = 0;
+            Stack_<Vertex_for_List<Tvertex, Tedge>> tempStack = new();
+            tempStack.Push(vertex);
+            
+            while (!tempStack.Empty)
+            {
+                vertex = tempStack.Top;
+                ListNode<Edge_for_List<Tvertex, Tedge>>? edge = vertex.edgesList.First;
+                while (edge.Data != null)
+                {
+                    if (edge.Data.status == Edge_Status.UNDETERMINED)
+                        switch (edge.Data.toVertex.status)
+                        {
+                            case Vertex_Status.UNDISCOVERED: // new node discovered
+                                edge.Data.toVertex.parent = vertex;
+                                vertex = edge.Data.toVertex;
+                                tempStack.Push(vertex);
+                                vertex.status = Vertex_Status.DISCOVERED;
+                                vertex.fTime = (vertex.dTime = ++clock);
+                                edge.Data.status = Edge_Status.TREE;
+                                edge = vertex.edgesList.First;
+                                continue;
+                            case Vertex_Status.DISCOVERED:
+                                edge.Data.status = Edge_Status.BACKWARD;
+                                if (edge.Data.toVertex.parent != vertex) // Backward edge
+                                {
+                                    if (vertex.fTime > edge.Data.toVertex.dTime)
+                                        vertex.fTime = edge.Data.toVertex.dTime;
+                                }
+                                break;
+                            default: // Vertex_Satus.Visited. For digraph.
+                                edge.Data.status = (edge.Data.toVertex.dTime > vertex.dTime) ? Edge_Status.FORWARD : Edge_Status.CROSS;
+                                break;
+                        }
+                    edge = edge.Succ;
+                }
+                vertex.status = Vertex_Status.VISITED;
+                bcc_vec[currentBCC].Push(tempStack.Pop());
+                if(!tempStack.Empty)
+                    if (vertex.fTime < tempStack.Top.fTime) // The current vertex is connected to a higher ancestor
+                    {
+                        tempStack.Top.fTime = vertex.fTime;
+                    }
+                    else // The current vertex is not connected to a higher ancestor. The bbc ends here.
+                    {
+                        bcc_vec[currentBCC].Push(tempStack.Top);
+                        currentBCC++;
+                        bcc_vec.Insert(new());
+                    }
+            }
+            return bcc_vec;
         }
+
 
         /// <summary>
         /// Breath-First Search starting from index.
