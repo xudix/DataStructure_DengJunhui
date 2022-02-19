@@ -185,7 +185,7 @@ namespace DataStructure_DJ
         public override ref double Weight(int from_index, int to_index) =>
             ref Edges_Matrix[from_index][to_index].weight;
 
-        protected override object BCC(int i, ref int n)
+        protected override void BCC(int i, ref int n, Vector_<Stack_<Tvertex>> result)
         {
             throw new NotImplementedException();
         }

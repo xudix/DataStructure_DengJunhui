@@ -27,7 +27,15 @@ namespace DataStructure_DJ
 
         public override object BCC(int index)
         {
-            throw new NotImplementedException();
+            Vector_<Stack_<Tvertex>> result = new();
+            int i = index, clock = 0;
+            do
+            {
+                if(Vertices[i].status == Vertex_Status.UNDISCOVERED)
+                    BCC_Itr(i, ref clock, result);
+            }while((i = (i+1) % Vertices.Size)!=index);
+            result.Remove(result.Size - 1);
+            return result;
         }
 
 
@@ -151,10 +159,41 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        public override void PFS(int index, Type type)
+        protected override void PFS(int index, ref int clock, Action<Graph_<Tvertex, Tedge>, int, int> priorityUpdater)
         {
             throw new NotImplementedException();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="clock"></param>
+        /// <param name="priorityUpdater">Delegate of method or action used to update the priority of a vertex.</param>
+        protected void PFS(int index, ref int clock, Action<Graph_<Tvertex, Tedge>, Vertex_for_List<Tvertex, Tedge>> priorityUpdater)
+        {
+            Vertex_for_List<Tvertex, Tedge>? vertex = Vertices[index];
+            vertex.status = Vertex_Status.DISCOVERED;
+            
+            var edge = vertex.edgesList.First;
+            while (edge.Data != null)
+            {
+                edge.Data.toVertex.parent = vertex;
+                priorityUpdater(this, edge.Data.toVertex);
+            }
+
+            for (int current = 0, sPrior = int.MaxValue; current < n_vertex; current++) // find the undiscovered vertices with smallest priority
+            {
+                if (Status(current) == Vertex_Status.UNDISCOVERED && Priority(current) < sPrior)
+                {
+                    sPrior = Priority(current);
+                    vertex = Vertices[index];
+                }
+            }
+            vertex.status = Vertex_Status.VISITED;
+            
+        }
+
+
 
         public override void Prim(int index)
         {
@@ -227,13 +266,18 @@ namespace DataStructure_DJ
         public override ref double Weight(int from_index, int to_index) =>
             ref Edge_Ref(from_index, to_index).weight;
 
+
+        protected override void BCC(int index, ref int clock, Vector_<Stack_<Tvertex>> result)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Bi-connected component decomposition.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="clock"></param>
-        
-        protected override Vector_<Stack_<Vertex_for_List<Tvertex, Tedge>>> BCC(int index, ref int clock)
+        protected void BCC_Itr(int index, ref int clock, Vector_<Stack_<Tvertex>> result)
         {
             // The idea is to find any loop in the graph by backward edges.
             // Class Vertex field "fTime" will be used to record the "highest connected ancestor"
@@ -241,15 +285,17 @@ namespace DataStructure_DJ
             Vertex_for_List<Tvertex, Tedge>? vertex = Vertices[index];
             vertex.fTime = (vertex.dTime = ++clock);
             vertex.status = Vertex_Status.DISCOVERED;
-            Vector_<Stack_<Vertex_for_List<Tvertex,Tedge>>> bcc_vec = new();
-            bcc_vec.Insert(new Stack_<Vertex_for_List<Tvertex, Tedge>>());
-            int currentBCC = 0;
-            Stack_<Vertex_for_List<Tvertex, Tedge>> tempStack = new();
-            tempStack.Push(vertex);
-            
-            while (!tempStack.Empty)
+            result.Insert(new Stack_<Tvertex>());
+            int currentBCC = result.Size-1;
+            Stack_<Vertex_for_List<Tvertex, Tedge>> vertexItrStack = new(), tempResultStack = new();
+            // vertexItrStack tracks where the current and next vertices to visit; tempResultStack tracks all vertices that is not put into result yet.
+            Stack_<Edge_for_List<Tvertex,Tedge>> edgeStack = new();
+            vertexItrStack.Push(vertex);
+            tempResultStack.Push(vertex);
+
+            while (!vertexItrStack.Empty)
             {
-                vertex = tempStack.Top;
+                vertex = vertexItrStack.Top;
                 ListNode<Edge_for_List<Tvertex, Tedge>>? edge = vertex.edgesList.First;
                 while (edge.Data != null)
                 {
@@ -259,7 +305,9 @@ namespace DataStructure_DJ
                             case Vertex_Status.UNDISCOVERED: // new node discovered
                                 edge.Data.toVertex.parent = vertex;
                                 vertex = edge.Data.toVertex;
-                                tempStack.Push(vertex);
+                                vertexItrStack.Push(vertex);
+                                tempResultStack.Push(vertex);
+                                edgeStack.Push(edge.Data);
                                 vertex.status = Vertex_Status.DISCOVERED;
                                 vertex.fTime = (vertex.dTime = ++clock);
                                 edge.Data.status = Edge_Status.TREE;
@@ -267,7 +315,7 @@ namespace DataStructure_DJ
                                 continue;
                             case Vertex_Status.DISCOVERED:
                                 edge.Data.status = Edge_Status.BACKWARD;
-                                if (edge.Data.toVertex.parent != vertex) // Backward edge
+                                if (edge.Data.toVertex != vertex.parent) // Backward edge
                                 {
                                     if (vertex.fTime > edge.Data.toVertex.dTime)
                                         vertex.fTime = edge.Data.toVertex.dTime;
@@ -280,20 +328,22 @@ namespace DataStructure_DJ
                     edge = edge.Succ;
                 }
                 vertex.status = Vertex_Status.VISITED;
-                bcc_vec[currentBCC].Push(tempStack.Pop());
-                if(!tempStack.Empty)
-                    if (vertex.fTime < tempStack.Top.fTime) // The current vertex is connected to a higher ancestor
+                vertexItrStack.Pop();
+                if(!vertexItrStack.Empty)
+                    if (vertex.fTime < vertexItrStack.Top.fTime) // The current vertex is connected to a higher ancestor
                     {
-                        tempStack.Top.fTime = vertex.fTime;
+                        vertexItrStack.Top.fTime = vertex.fTime;
                     }
-                    else // The current vertex is not connected to a higher ancestor. The bbc ends here.
+                    else // The current vertex is not connected to a higher ancestor. The bbc ends here. Stack top is a cut vertex
                     {
-                        bcc_vec[currentBCC].Push(tempStack.Top);
+                        while(tempResultStack.Top.parent!=vertexItrStack.Top) // put all vertices before the cut vertex into the 
+                            result[currentBCC].Push(tempResultStack.Pop().data);
+                        result[currentBCC].Push(tempResultStack.Pop().data);
+                        result[currentBCC].Push(vertexItrStack.Top.data);
                         currentBCC++;
-                        bcc_vec.Insert(new());
+                        result.Insert(new());
                     }
             }
-            return bcc_vec;
         }
 
 
@@ -503,6 +553,11 @@ namespace DataStructure_DJ
             this.weight = weight;
             status = Edge_Status.UNDETERMINED;
         }
+
+        public override string ToString()
+        {
+            return data.ToString();
+        }
     }
 
     public class Vertex_for_List<Tvertex, Tedge>
@@ -525,6 +580,11 @@ namespace DataStructure_DJ
             parent = default;
             priority = int.MaxValue;
             edgesList = new();
+        }
+
+        public override string ToString()
+        {
+            return data.ToString();
         }
     }
 }
