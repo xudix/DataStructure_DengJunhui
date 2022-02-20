@@ -159,38 +159,62 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
+        public Vertex_for_List<Tvertex, Tedge>? Parent(Vertex_for_List<Tvertex, Tedge> child) =>
+            child.parent;
+
         protected override void PFS(int index, ref int clock, Action<Graph_<Tvertex, Tedge>, int, int> priorityUpdater)
         {
             throw new NotImplementedException();
         }
+
+        public void PFS(int index, Action<Vertex_for_List<Tvertex, Tedge>> priorityUpdater)
+        {
+            Reset();
+            int clock = 0;
+            int i = index;
+            do
+            {
+                if (Status(i) == Vertex_Status.UNDISCOVERED)
+                    PFS(i, ref clock, priorityUpdater);
+            } while ((i = (++i % n_vertex)) != index);
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="index"></param>
         /// <param name="clock"></param>
-        /// <param name="priorityUpdater">Delegate of method or action used to update the priority of a vertex.</param>
-        protected void PFS(int index, ref int clock, Action<Graph_<Tvertex, Tedge>, Vertex_for_List<Tvertex, Tedge>> priorityUpdater)
+        /// <param name="priorityUpdater">Delegate of method or action used to update the priority of a vertex. 
+        /// The parameter is the current vertex. 
+        /// This method should update the priority of the childs of the current vertex, and update their "parent" as well.</param>
+        protected void PFS(int index, ref int clock, Action<Vertex_for_List<Tvertex, Tedge>> priorityUpdater)
         {
-            Vertex_for_List<Tvertex, Tedge>? vertex = Vertices[index];
-            vertex.status = Vertex_Status.DISCOVERED;
-            
-            var edge = vertex.edgesList.First;
-            while (edge.Data != null)
+            Vertex_for_List<Tvertex, Tedge> vertex = Vertices[index];
+            vertex.priority = 0;
+            while(true)
             {
-                edge.Data.toVertex.parent = vertex;
-                priorityUpdater(this, edge.Data.toVertex);
-            }
-
-            for (int current = 0, sPrior = int.MaxValue; current < n_vertex; current++) // find the undiscovered vertices with smallest priority
-            {
-                if (Status(current) == Vertex_Status.UNDISCOVERED && Priority(current) < sPrior)
+                vertex.status = Vertex_Status.VISITED;
+                priorityUpdater(vertex);
+                for (int current = 0, minPrior = int.MaxValue; current < n_vertex; current++) // find the undiscovered vertices with smallest priority
                 {
-                    sPrior = Priority(current);
-                    vertex = Vertices[index];
+                    if (Status(current) == Vertex_Status.UNDISCOVERED && Priority(current) < minPrior)
+                    {
+                        vertex = Vertices[current];
+                        minPrior = vertex.priority;
+                    }
                 }
+                if (vertex.status != Vertex_Status.VISITED) // found next vertex. update edge status to "TREE"
+                {
+                    for (var edge = vertex.parent.edgesList.First; edge.Data != null; edge = edge.Succ)
+                        if (edge.Data.toVertex == vertex)
+                        {
+                            edge.Data.status = Edge_Status.TREE;
+                            break;
+                        }
+                }
+                else
+                    break;// The loop ends when there's no next vertex
             }
-            vertex.status = Vertex_Status.VISITED;
-            
         }
 
 
@@ -536,6 +560,37 @@ namespace DataStructure_DJ
                     edge.Data.status = Edge_Status.UNDETERMINED;
             }
         }
+
+        /// <summary>
+        /// Priority updater for Priority-First Search PFS() to use Breath-First Search
+        /// </summary>
+        /// <param name="vertex"></param>
+        public void BFS_PU(Vertex_for_List<Tvertex, Tedge> vertex)
+        {
+            for(var edge = vertex.edgesList.First; edge.Data !=null; edge = edge.Succ )
+                if (edge.Data.toVertex.status == Vertex_Status.UNDISCOVERED)
+                    if(edge.Data.toVertex.priority > vertex.priority + 1)
+                    {
+                        edge.Data.toVertex.priority = vertex.priority + 1;
+                        edge.Data.toVertex.parent = vertex;
+                    }
+        }
+
+        /// <summary>
+        /// Priority updater for Priority-First Search PFS() to use Depth-First Search
+        /// </summary>
+        /// <param name="vertex"></param>
+        public void DFS_PU(Vertex_for_List<Tvertex, Tedge> vertex)
+        {
+            for (var edge = vertex.edgesList.First; edge.Data != null; edge = edge.Succ)
+                if (edge.Data.toVertex.status == Vertex_Status.UNDISCOVERED)
+                    if (edge.Data.toVertex.priority > vertex.priority - 1)
+                    {
+                        edge.Data.toVertex.priority = vertex.priority - 1;
+                        edge.Data.toVertex.parent = vertex;
+                    }
+        }
+
     }
 
     public class Edge_for_List<Tvertex, Tedge>

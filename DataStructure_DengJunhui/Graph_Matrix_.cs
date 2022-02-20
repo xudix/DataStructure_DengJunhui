@@ -107,10 +107,6 @@ namespace DataStructure_DJ
         public override ref int Parent(int index) =>
             ref Vertices[index].parent;
 
-        public override void PFS(int index, Type type)
-        {
-            throw new NotImplementedException();
-        }
 
         public override void Prim(int index)
         {
@@ -186,6 +182,11 @@ namespace DataStructure_DJ
             ref Edges_Matrix[from_index][to_index].weight;
 
         protected override void BCC(int i, ref int n, Vector_<Stack_<Tvertex>> result)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void PFS(int index, ref int clock, Action<Graph_<Tvertex, Tedge>, int, int> priorityUpdater)
         {
             throw new NotImplementedException();
         }

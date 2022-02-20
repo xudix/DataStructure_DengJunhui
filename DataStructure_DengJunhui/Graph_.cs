@@ -238,6 +238,8 @@ namespace DataStructure_DJ
             } while ((i = (++i % n_vertex)) != index);
         }
 
+        
+
 
     }
 
@@ -268,6 +270,8 @@ namespace DataStructure_DJ
             //graph.Insert(0, 7, 2, 1);
             //graph.Insert(0, 7, 3, 1);
             //graph.BFS(0);
+            //graph.PFS(7, graph.BFS_PU);
+
 
             // Graph in fig 6.8
             //graph.Insert("A0");
@@ -288,6 +292,7 @@ namespace DataStructure_DJ
             //graph.Insert(0, 6, 0, 1);
             //graph.Insert(0, 6, 2, 1);
             //graph.DFS(0);
+            //graph.PFS(0, graph.DFS_PU);
 
             //// Graph in fig 6.12
             //graph.Insert("A0");
@@ -305,42 +310,42 @@ namespace DataStructure_DJ
             //graph.Insert(1, 4, 5);
             //Stack_<string> sorted = graph.TSort(2);
 
-            // Graph in Figure 6.17
-            graph.Insert("A0");
-            graph.Insert("B1");
-            graph.Insert("C2");
-            graph.Insert("D3");
-            graph.Insert("E4");
-            graph.Insert("F5");
-            graph.Insert("G6");
-            graph.Insert("H7");
-            graph.Insert("I8");
-            graph.Insert("J9");
-            graph.Insert(1, 0, 1);
-            graph.Insert(1, 0, 7);
-            graph.Insert(1, 0, 8);
-            graph.Insert(1, 0, 9);
-            graph.Insert(1, 1, 0);
-            graph.Insert(1, 1, 2);
-            graph.Insert(1, 2,1);
-            graph.Insert(1, 2,3);
-            graph.Insert(1, 2,7);
-            graph.Insert(1, 3,2);
-            graph.Insert(1, 3,4);
-            graph.Insert(1, 3,6);
-            graph.Insert(1, 4,3);
-            graph.Insert(1, 4,6);
-            graph.Insert(1, 5,6);
-            graph.Insert(1, 6,5);
-            graph.Insert(1, 6,3);
-            graph.Insert(1, 6,4);
-            graph.Insert(1, 7,0);
-            graph.Insert(1, 7,2);
-            graph.Insert(1, 8,0);
-            graph.Insert(1, 8,9);
-            graph.Insert(1, 9,0);
-            graph.Insert(1, 9,8);
-            Vector_<Stack_<string>> stack = (Vector_<Stack_<string>>)graph.BCC(3);
+            //// Graph in Figure 6.17
+            //graph.Insert("A0");
+            //graph.Insert("B1");
+            //graph.Insert("C2");
+            //graph.Insert("D3");
+            //graph.Insert("E4");
+            //graph.Insert("F5");
+            //graph.Insert("G6");
+            //graph.Insert("H7");
+            //graph.Insert("I8");
+            //graph.Insert("J9");
+            //graph.Insert(1, 0, 1);
+            //graph.Insert(1, 0, 7);
+            //graph.Insert(1, 0, 8);
+            //graph.Insert(1, 0, 9);
+            //graph.Insert(1, 1, 0);
+            //graph.Insert(1, 1, 2);
+            //graph.Insert(1, 2,1);
+            //graph.Insert(1, 2,3);
+            //graph.Insert(1, 2,7);
+            //graph.Insert(1, 3,2);
+            //graph.Insert(1, 3,4);
+            //graph.Insert(1, 3,6);
+            //graph.Insert(1, 4,3);
+            //graph.Insert(1, 4,6);
+            //graph.Insert(1, 5,6);
+            //graph.Insert(1, 6,5);
+            //graph.Insert(1, 6,3);
+            //graph.Insert(1, 6,4);
+            //graph.Insert(1, 7,0);
+            //graph.Insert(1, 7,2);
+            //graph.Insert(1, 8,0);
+            //graph.Insert(1, 8,9);
+            //graph.Insert(1, 9,0);
+            //graph.Insert(1, 9,8);
+            //Vector_<Stack_<string>> stack = (Vector_<Stack_<string>>)graph.BCC(3);
 
         }
     }
