@@ -17,7 +17,7 @@ namespace DataStructure_DJ
                 Status(i) = Vertex_Status.UNDISCOVERED;
                 DTime(i) = (FTime(i) = -1);
                 Parent(i) = -1;
-                Priority(i) = int.MaxValue;
+                Priority(i) = double.MaxValue;
                 for (int j = 0; j < n_vertex; j++)
                     if (Exists(i, j))
                         Status(i, j) = Edge_Status.UNDETERMINED;
@@ -168,7 +168,7 @@ namespace DataStructure_DJ
         public abstract ref int DTime(int index);
         public abstract ref int FTime(int index);
         public abstract ref int Parent(int index);
-        public abstract ref int Priority(int index);
+        public abstract ref double Priority(int index);
 
         
         public abstract ref Vertex_Status Status (int index);
@@ -176,6 +176,19 @@ namespace DataStructure_DJ
         public abstract bool Exists(int from_inded, int to_index);
 
         public abstract void Insert(Tedge data, int from_index, int to_index, double weight);
+
+        /// <summary>
+        /// Insert undirectional edge.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="from_index"></param>
+        /// <param name="to_index"></param>
+        /// <param name="weight"></param>
+        public virtual void InsertUndi(Tedge data, int from_index, int to_index, double weight)
+        {
+            Insert(data, from_index, to_index, weight);
+            Insert(data, to_index, from_index, weight);
+        }
 
         public abstract Tedge Remove(int from_inded, int to_index);
 
@@ -346,6 +359,36 @@ namespace DataStructure_DJ
             //graph.Insert(1, 9,0);
             //graph.Insert(1, 9,8);
             //Vector_<Stack_<string>> stack = (Vector_<Stack_<string>>)graph.BCC(3);
+
+            //Graph in FIg 6.21
+            graph.Insert("A0");
+            graph.Insert("B1");
+            graph.Insert("C2");
+            graph.Insert("D3");
+            graph.Insert("E4");
+            graph.Insert("F5");
+            graph.Insert("G6");
+            graph.Insert("H7");
+            graph.InsertUndi(1, 0, 1, 4);
+            graph.InsertUndi(1, 0, 3, 6);
+            graph.InsertUndi(1, 0, 6, 7);
+            graph.InsertUndi(1, 1, 2, 12);
+            graph.InsertUndi(1, 2, 3, 9);
+            graph.InsertUndi(1, 2, 4, 1);
+            graph.InsertUndi(1, 2, 5, 2);
+            graph.InsertUndi(1, 2, 7, 10);
+            graph.InsertUndi(1, 3, 4, 13);
+            graph.InsertUndi(1, 3, 6, 2);
+            graph.InsertUndi(1, 4, 5, 5);
+            graph.InsertUndi(1, 4, 6, 11);
+            graph.InsertUndi(1, 4, 7, 8);
+            graph.InsertUndi(1, 5, 7, 7);
+            graph.InsertUndi(1, 6, 7, 14);
+            //graph.Prim(0);
+            graph.Dijkstra(0);
+
+
+
 
         }
     }

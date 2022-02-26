@@ -113,7 +113,7 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-        public override ref int Priority(int index) =>
+        public override ref double Priority(int index) =>
             ref Vertices[index].priority;
 
         public override Tvertex? Remove(int index)
@@ -246,7 +246,7 @@ namespace DataStructure_DJ
         public Vertex_Status status;
         public int dTime, fTime;
         public int parent;
-        public int priority;
+        public double priority;
         public Vertex(in T? data = default)
         {
             this.data = data;

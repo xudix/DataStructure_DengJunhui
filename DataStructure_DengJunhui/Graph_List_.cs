@@ -39,10 +39,25 @@ namespace DataStructure_DJ
         }
 
 
-        public override void Dijkstra(int index)
+        public override void Dijkstra(int index) =>
+            PFS(index, Dijkstra_PU);
+
+
+        /// <summary>
+        /// Priority updater for Dijkstra algorithm. Priority of a vertex is set to its distance from tree root.
+        /// </summary>
+        /// <param name="vertex">Current vertex. Verticed with edge from the current vertex will be updated.</param>
+        public void Dijkstra_PU(Vertex_for_List<Tvertex, Tedge> vertex)
         {
-            throw new NotImplementedException();
+            for(var edge = vertex.edgesList.First; edge.Data != null; edge = edge.Succ)
+                if(edge.Data.toVertex.status == Vertex_Status.UNDISCOVERED && edge.Data.toVertex.priority > vertex.priority + edge.Data.weight)
+                {
+                    edge.Data.toVertex.priority = vertex.priority+edge.Data.weight;
+                    edge.Data.toVertex.parent = vertex;
+                }
         }
+
+
 
         public override ref int DTime(int index) =>
             ref Vertices[index].dTime;
@@ -129,6 +144,8 @@ namespace DataStructure_DJ
             return Vertices.Insert(new Vertex_for_List<Tvertex, Tedge>(data)); ;
         }
 
+        
+
         /// <summary>
         /// Insert an edge from one vertex to another. If the edge existed, it will be overridden.
         /// </summary>
@@ -180,13 +197,13 @@ namespace DataStructure_DJ
         }
 
         /// <summary>
-        /// 
+        /// Priority first search.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="clock"></param>
         /// <param name="priorityUpdater">Delegate of method or action used to update the priority of a vertex. 
         /// The parameter is the current vertex. 
-        /// This method should update the priority of the childs of the current vertex, and update their "parent" as well.</param>
+        /// This method should update the priority of the children of the current vertex, and update their "parent" as well.</param>
         protected void PFS(int index, ref int clock, Action<Vertex_for_List<Tvertex, Tedge>> priorityUpdater)
         {
             Vertex_for_List<Tvertex, Tedge> vertex = Vertices[index];
@@ -195,7 +212,8 @@ namespace DataStructure_DJ
             {
                 vertex.status = Vertex_Status.VISITED;
                 priorityUpdater(vertex);
-                for (int current = 0, minPrior = int.MaxValue; current < n_vertex; current++) // find the undiscovered vertices with smallest priority
+                double minPrior = double.MaxValue;
+                for (int current = 0; current < n_vertex; current++) // find the undiscovered vertices with smallest priority
                 {
                     if (Status(current) == Vertex_Status.UNDISCOVERED && Priority(current) < minPrior)
                     {
@@ -218,13 +236,24 @@ namespace DataStructure_DJ
         }
 
 
+        public override void Prim(int index) =>
+            PFS(index, Prim_PU);
+        
 
-        public override void Prim(int index)
+        public void Prim_PU(Vertex_for_List<Tvertex, Tedge> vertex)
         {
-            throw new NotImplementedException();
+            for(var edge = vertex.edgesList.First; edge.Data != null; edge = edge.Succ)
+            {
+                if(edge.Data.toVertex.status == Vertex_Status.UNDISCOVERED && edge.Data.toVertex.priority > edge.Data.weight)
+                {
+                    edge.Data.toVertex.priority = edge.Data.weight;
+                    edge.Data.toVertex.parent = vertex;
+                }
+                    
+            }
         }
 
-        public override ref int Priority(int index) =>
+        public override ref double Priority(int index) =>
             ref Vertices[index].priority;
 
         public override Tvertex? Remove(int index)
@@ -622,7 +651,7 @@ namespace DataStructure_DJ
         public Vertex_Status status;
         public int dTime, fTime;
         public Vertex_for_List<Tvertex, Tedge>? parent;
-        public int priority;
+        public double priority;
         public List_<Edge_for_List<Tvertex, Tedge>> edgesList;
         public Vertex_for_List(in Tvertex? data = default)
         {
