@@ -7,6 +7,8 @@ using ThisProj = DataStructure_DJ;
 
 //ThisProj.StackExercices.Main();
 
-ThisProj.Graph_Exercises.Main();
+//ThisProj.Graph_Exercises.Main();
+
+ThisProj.BinSearchTreeExercise.main();
 
 

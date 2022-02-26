@@ -186,6 +186,7 @@ namespace DataStructure_DJ
             RBColor = rBColor;
         }
 
+        public override string ToString() => Data.ToString();
 
         /// <summary>
         /// The total number of descendants
@@ -334,7 +335,7 @@ namespace DataStructure_DJ
         }
 
         public int UpdateHeight() =>
-            Height = 1 + Stature(L_Child) > Stature(R_Child) ? Stature(L_Child) : Stature(R_Child);
+            Height = 1 + (Stature(L_Child) > Stature(R_Child) ? Stature(L_Child) : Stature(R_Child));
 
 
         
