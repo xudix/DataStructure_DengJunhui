@@ -17,6 +17,7 @@ namespace DataStructure_DJ
             _size = 0;
             _root = null;
         }
+        
 
         public int Size => _size;
 
@@ -193,6 +194,11 @@ namespace DataStructure_DJ
         /// </summary>
         public int Size;
 
+        /// <summary>
+        /// The height of a node. 
+        /// </summary>
+        /// <param name="binNode"></param>
+        /// <returns>The height of a node. 0 for leaf node, and -1 for empty tree.</returns>
         public static int Stature(BinNode<T>? binNode) =>
             binNode != null ? binNode.Height : -1;
 

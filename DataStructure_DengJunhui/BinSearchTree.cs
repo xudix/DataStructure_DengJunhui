@@ -68,11 +68,49 @@ namespace DataStructure_DJ
             }
         }
 
-        public virtual bool Remove(T Entry)
+        public virtual bool Remove(T target)
         {
-            throw new NotImplementedException();
+            var loc = Search(target);
+            if (loc == null) // target entry does not exist
+                return false;
+            Remove(loc);
+            return true;
         }
 
+        protected virtual BinNode<T>? Remove(BinNode<T> loc)
+        {
+            BinNode<T>? node2Remove = loc, succ = null;
+            _size--;
+            if (!loc.HasLChild) // no left child or no child
+            {
+                succ = loc.R_Child;
+            }
+            else if (!loc.HasRChild) // no right child
+            {
+                succ=loc.L_Child;
+            }
+            else // has both children
+            {
+                node2Remove = loc.Succ();
+                loc.Data = node2Remove.Data;
+                succ = node2Remove.R_Child; // node2Remove won't have L child
+                _hot = node2Remove.Parent; // _hot is always the parent of node2Remove
+            }
+            if(succ!= null) succ.Parent = _hot;
+            if (_hot != null) // node2Remove is not root
+                if (node2Remove.IsLChild)
+                {
+                    _hot.L_Child = succ;
+                }
+                else
+                {
+                    _hot.R_Child = succ;
+                }
+            else // node2Remove is root
+                _root = succ;
+            return succ;
+
+        }
     }
 
 
