@@ -12,12 +12,31 @@ namespace DataStructure_DJ
         /// The last visted non-null node in search.
         /// </summary>
         protected BinNode<T>? _hot;
-        protected BinNode<T> Connect34(BinNode<T> node1, BinNode<T> node2, BinNode<T> node3, BinNode<T> node4, BinNode<T> node5, BinNode<T> node6, BinNode<T> node7)
+        protected virtual BinNode<T> Connect34(BinNode<T> node1, BinNode<T> node2, BinNode<T> node3, BinNode<T>? subTree1, BinNode<T>? subTree2, BinNode<T>? subTree3, BinNode<T>? subTree4)
         {
-            throw new NotImplementedException();
+            node1.L_Child = subTree1;
+            if (subTree1 != null)
+                subTree1.Parent = node1;
+            node1.R_Child = subTree2;
+            if (subTree2 != null)
+                subTree2.Parent = node1;
+            node3.L_Child = subTree3;
+            if (subTree3 != null)
+                subTree3.Parent = node3;
+            node3.R_Child = subTree4;
+            if (subTree4 != null)
+                subTree4.Parent = node3;
+            node1.UpdateHeight();
+            node3.UpdateHeight();
+            node2.L_Child = node1;
+            node1.Parent = node2;
+            node2.R_Child = node3;
+            node3.Parent = node2;
+            node2.UpdateHeight();
+            return node2;
         }
 
-        protected BinNode<T> RotateAt(BinNode<T> node)
+        protected virtual BinNode<T> BalanceAt(BinNode<T> node)
         {
             throw new NotImplementedException();
         }
@@ -68,6 +87,11 @@ namespace DataStructure_DJ
             }
         }
 
+        /// <summary>
+        /// Removes target from the Tree
+        /// </summary>
+        /// <param name="target">The target to be removed</param>
+        /// <returns>True if the target was in the tree. False is the target was not in the tree to begin with.</returns>
         public virtual bool Remove(T target)
         {
             var loc = Search(target);
@@ -80,7 +104,6 @@ namespace DataStructure_DJ
         protected virtual BinNode<T>? Remove(BinNode<T> loc)
         {
             BinNode<T>? node2Remove = loc, succ = null;
-            _size--;
             if (!loc.HasLChild) // no left child or no child
             {
                 succ = loc.R_Child;
@@ -108,6 +131,8 @@ namespace DataStructure_DJ
                 }
             else // node2Remove is root
                 _root = succ;
+            _size--;
+            UpdateHeightAbove(_hot);
             return succ;
 
         }

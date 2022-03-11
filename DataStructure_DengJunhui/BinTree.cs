@@ -208,7 +208,7 @@ namespace DataStructure_DJ
         /// <param name="data"></param>
         /// <returns>The new node inserted.</returns>
         public BinNode<T> InsertAsLC(T data) =>
-            (L_Child = new(data, this));
+            L_Child = new(data, this);
 
         /// <summary>
         /// Insert data as the right child of current node. Previous right child will be discard.
@@ -216,7 +216,7 @@ namespace DataStructure_DJ
         /// <param name="data"></param>
         /// <returns>The new node inserted.</returns>
         public BinNode<T> InsertAsRC(T data) =>
-            (R_Child = new(data, this));
+            R_Child = new(data, this);
 
         /// <summary>
         /// The succeding node of the current node in Inorder Traversal
