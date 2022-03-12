@@ -12,6 +12,18 @@ namespace DataStructure_DJ
         /// The last visted non-null node in search.
         /// </summary>
         protected BinNode<T>? _hot;
+
+        /// <summary>
+        /// Connect the given nodes and subTrees in the 3-4 manner.
+        /// </summary>
+        /// <param name="node1"></param>
+        /// <param name="node2"></param>
+        /// <param name="node3"></param>
+        /// <param name="subTree1"></param>
+        /// <param name="subTree2"></param>
+        /// <param name="subTree3"></param>
+        /// <param name="subTree4"></param>
+        /// <returns></returns>
         protected virtual BinNode<T> Connect34(BinNode<T> node1, BinNode<T> node2, BinNode<T> node3, BinNode<T>? subTree1, BinNode<T>? subTree2, BinNode<T>? subTree3, BinNode<T>? subTree4)
         {
             node1.L_Child = subTree1;
@@ -135,6 +147,48 @@ namespace DataStructure_DJ
             UpdateHeightAbove(_hot);
             return succ;
 
+        }
+
+        protected void Zig(BinNode<T> binNode)
+        {
+            var newNode = binNode.L_Child;
+            if (newNode != null)
+            {
+                newNode.Parent = binNode.Parent;
+                if (binNode.Parent == null) //binNode was the root
+                    _root = newNode;
+                else if (binNode.IsLChild)
+                    binNode.Parent.L_Child = newNode;
+                else
+                    binNode.Parent.R_Child = newNode;
+                binNode.L_Child = newNode.R_Child;
+                if (binNode.L_Child != null)
+                    binNode.L_Child.Parent = binNode;
+                newNode.R_Child = binNode;
+                binNode.Parent = newNode;
+                UpdateHeightAbove(binNode);
+            }
+        }
+
+        protected void Zag(BinNode<T> binNode)
+        {
+            var newNode = binNode.R_Child;
+            if (newNode != null)
+            {
+                newNode.Parent = binNode.Parent;
+                if (binNode.Parent == null) //binNode was the root
+                    _root = newNode;
+                else if (binNode.IsLChild)
+                    binNode.Parent.L_Child = newNode;
+                else
+                    binNode.Parent.R_Child = newNode;
+                binNode.R_Child = newNode.L_Child;
+                if (binNode.R_Child != null)
+                    binNode.R_Child.Parent = binNode;
+                newNode.L_Child = binNode;
+                binNode.Parent = newNode;
+                UpdateHeightAbove(binNode);
+            }
         }
     }
 

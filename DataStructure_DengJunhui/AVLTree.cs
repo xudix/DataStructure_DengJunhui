@@ -21,47 +21,7 @@ namespace DataStructure_DJ
             return balFac > -2 && balFac < 2;
         }
 
-        protected void Zig(BinNode<T> binNode)
-        {
-            var newNode = binNode.L_Child;
-            if (newNode != null)
-            {
-                newNode.Parent = binNode.Parent;
-                if (binNode.Parent == null) //binNode was the root
-                    _root = newNode;
-                else if(binNode.IsLChild)
-                    binNode.Parent.L_Child = newNode;
-                else
-                    binNode.Parent.R_Child = newNode;
-                binNode.L_Child = newNode.R_Child;
-                if (binNode.L_Child != null)
-                    binNode.L_Child.Parent = binNode;
-                newNode.R_Child = binNode;
-                binNode.Parent = newNode;
-                UpdateHeightAbove(binNode);
-            }
-        }
-
-        protected void Zag(BinNode<T> binNode)
-        {
-            var newNode = binNode.R_Child;
-            if (newNode != null)
-            {
-                newNode.Parent = binNode.Parent;
-                if (binNode.Parent == null) //binNode was the root
-                    _root = newNode;
-                else if (binNode.IsLChild)
-                    binNode.Parent.L_Child = newNode;
-                else
-                    binNode.Parent.R_Child = newNode;
-                binNode.R_Child = newNode.L_Child;
-                if (binNode.R_Child != null)
-                    binNode.R_Child.Parent = binNode;
-                newNode.L_Child = binNode;
-                binNode.Parent = newNode;
-                UpdateHeightAbove(binNode);
-            }
-        }
+        
 
         /// <summary>
         /// 
@@ -102,7 +62,7 @@ namespace DataStructure_DJ
                     if (!AvlBalanced(node))
                         node = BalanceAt(node);
                         // After balancing this node, the ancestors may become unbalanced. So no break. Keep going.
-                    else
+                    else // BalanceAt() method will update the height.
                         node.UpdateHeight();
                 }
             }
