@@ -14,7 +14,7 @@ namespace DataStructure_DJ
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        protected BinNode<T>? Splay(BinNode<T> node)
+        protected BinNode<T>? Splay(BinNode<T>? node)
         {
             if(node == null)
                 return null;
@@ -82,6 +82,38 @@ namespace DataStructure_DJ
                 UpdateHeightAbove(parent);
             }
             return node;
+        }
+
+        /// <summary>
+        /// Search for the target. _hot will be the last non-null node before finding the target. 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns>The node corresponding to the target. Null if target does not exist.</returns>
+        public override BinNode<T>? Search(T target)
+        {
+            var result = base.Search(target);
+            if (result != null)
+                Splay(result);
+            else
+                Splay(_hot);
+            return result;
+        }
+
+        public override BinNode<T> Insert(T newEntry)
+        {
+            if (Root == null) // empty tree
+                return InsertAsRoot(newEntry);
+             // non-empty tree. _hot is not null
+            if (Search(newEntry) == null) // does not exist. _hot is root, and newEntry should be the new root.
+            {
+                if (newEntry.CompareTo(Root.Data) < 0)
+                    _root = new BinNode<T>(newEntry, null, _hot.L_Child, _hot);
+                else
+                    _root = new BinNode<T>(newEntry, null, _hot, _hot.R_Child);
+                _size++;
+            }
+            UpdateHeightAbove(_hot);
+            return _root;
         }
 
     }

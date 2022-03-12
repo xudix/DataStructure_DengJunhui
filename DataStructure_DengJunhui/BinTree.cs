@@ -176,13 +176,17 @@ namespace DataStructure_DJ
 
         public RBColor RBColor;
 
-        public BinNode(T? data = default, BinNode<T>? parent = null, BinNode<T>? l_Child = null, BinNode<T>? r_Child = null, int height = 0, int nPL = 1, RBColor rBColor = RBColor.RB_RED)
+        public BinNode(T? data = default, BinNode<T>? parent = null, BinNode<T>? l_Child = null, BinNode<T>? r_Child = null, int nPL = 1, RBColor rBColor = RBColor.RB_RED)
         {
             Data = data;
             Parent = parent;
             L_Child = l_Child;
+            if (l_Child != null)
+                l_Child.Parent = this;
             R_Child = r_Child;
-            Height = height;
+            if(r_Child != null)
+                r_Child.Parent = this;
+            this.UpdateHeight();
             NPL = nPL;
             RBColor = rBColor;
         }

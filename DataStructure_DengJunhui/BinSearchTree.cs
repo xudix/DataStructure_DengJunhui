@@ -53,17 +53,27 @@ namespace DataStructure_DJ
             throw new NotImplementedException();
         }
 
-
+        /// <summary>
+        /// Search for the target. _hot will be the last non-null node before finding the target. 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns>The node corresponding to the target. Null if target does not exist.</returns>
         public virtual BinNode<T>? Search(T target)=>
             Search(target, _root, out _hot);
 
+        /// <summary>
+        /// Search for the target. _hot will be the last non-null node before finding the target. 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="root"></param>
+        /// <param name="hot"></param>
+        /// <returns>The node corresponding to the target. Null if target does not exist.</returns>
         public static BinNode<T>? Search(in T target, in BinNode<T> root, out BinNode<T>? hot)
         {
             hot = null;
             BinNode<T>? result = root;
             while(result != null)
             {
-
                 switch (target.CompareTo(result.Data))
                 {
                     case 0:
